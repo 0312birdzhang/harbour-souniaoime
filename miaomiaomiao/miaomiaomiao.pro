@@ -2,5 +2,3 @@ TEMPLATE = lib
 
 TARGET = soumaoime
 
-
-
