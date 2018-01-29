@@ -1,0 +1,6 @@
+TEMPLATE = lib
+
+TARGET = soumaoime
+
+
+
