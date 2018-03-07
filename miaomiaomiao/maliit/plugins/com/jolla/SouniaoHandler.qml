@@ -53,7 +53,8 @@ InputHandler {
             fetchMany = false
             hasMore = false
             pred = gpy.search(str)
-            pySqlStart = gpy.getSplStart()
+//            pySqlStart = gpy.getSplStart()
+            pySqlStart = gpy.spellingStartPositions()
             olderSql = str
             if(pred > pageSize)
             {
@@ -76,7 +77,7 @@ InputHandler {
                 item = moreCandidates.get(index)
                 nSize = gpy.chooceCandidate(index+pageSize)
                 fixLen = gpy.fixedLength()
-                pred =nSize
+                pred = nSize
             }else{
                 item = candidates.get(index)
                 nSize = gpy.chooceCandidate(index)
@@ -87,23 +88,18 @@ InputHandler {
 
             var flag = false
 
-            // TODO
-//            if(fixLen == pySqlStart[0])
-//            {
-//                flag = true
-//            }else{
-//                flag = false
-//            }
-
-            flag = true;
-
-
-            if (item.text !=""){
+            if(fixLen == parseInt(pySqlStart[0]))
+            {
+                flag = true
+            }else{
+                flag = false
+            }
+            if (item.text != ""){
 
                 if(!flag){
                     var tmpPy = gpy.pinyinString(false)
 
-                    var tmpSubPy = tmpPy.slice(pySqlStart[fixLen+1], tmpPy.length)
+                    var tmpSubPy = tmpPy.slice(parseInt(pySqlStart[fixLen+1]), tmpPy.length)
 
                     MInputMethodQuick.sendCommit(item.text)
                     MInputMethodQuick.sendPreedit( tmpSubPy )

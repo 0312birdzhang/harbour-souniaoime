@@ -32,6 +32,7 @@
 
 #include <QObject>
 #include <QVector>
+#include <QVariant>
 
 
 class PinyinDecoderService : public QObject
@@ -54,7 +55,7 @@ public:
     Q_INVOKABLE void resetSearch();
     Q_INVOKABLE QString pinyinString(bool decoded);
     int pinyinStringLength(bool decoded);
-    Q_INVOKABLE QVector<int> spellingStartPositions();
+    Q_INVOKABLE QList<QString> spellingStartPositions();
     Q_INVOKABLE int getSplStart();
     Q_INVOKABLE QString candidateAt(int index);
     QList<QString> fetchCandidates(int index, int count, int sentFixedLen);

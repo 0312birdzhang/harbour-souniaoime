@@ -87,9 +87,9 @@ bool PinyinDecoderService::init()
     }
 
     initDone = im_open_decoder(sysDict.toUtf8().constData(), usrDictInfo.absoluteFilePath().toUtf8().constData());
-    if (!initDone)
+    if (!initDone){
         // VIRTUALKEYBOARD_DEBUG() << "Could not initialize pinyin engine. sys_dict:" << sysDict << "usr_dict:" << usrDictInfo.absoluteFilePath();
-
+    }
     return initDone;
 }
 
@@ -164,18 +164,22 @@ int PinyinDecoderService::getSplStart()
     return (int)im_get_spl_start_pos(spl_start);
 }
 
-QVector<int> PinyinDecoderService::spellingStartPositions()
+QList<QString> PinyinDecoderService::spellingStartPositions()
 {
     const unsigned short *spl_start;
     int len;
     // There will be len + 1 elements in the buffer when len > 0.
     len = (int)im_get_spl_start_pos(spl_start);
 
-    QVector<int> arr;
-    arr.resize(len + 2);
-    arr[0] = len; // element 0 is used to store the length of buffer.
+    QList<QString> arr;
+//    arr.resize(len + 2);
+//    arr[0] = len; // element 0 is used to store the length of buffer.
+//    for (int i = 0; i <= len; i++)
+//        arr[i + 1] = spl_start[i];
+
+    arr.append(QString::number(len)); // element 0 is used to store the length of buffer.
     for (int i = 0; i <= len; i++)
-        arr[i + 1] = spl_start[i];
+        arr.append(QString::number(spl_start[i]));
     return arr;
 }
 
