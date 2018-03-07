@@ -24,11 +24,8 @@
 // Debug performance for operations
 // #define ___DEBUG_PERF___
 
-#ifdef _WIN32
-#include <winsock.h> // timeval
-#else
+#include <sys/time.h>
 #include <pthread.h>
-#endif
 #include "atomdictbase.h"
 
 namespace ime_pinyin {
@@ -111,7 +108,7 @@ class UserDict : public AtomDictBase {
 
   /**
    * Get lemmas need sync to a UTF-16LE string of above format.
-   * Note: input buffer (str) must not be too small. If str is too small to
+   * Note: input buffer (str) must not be too small. If str is too small to 
    *       contain single one lemma, there might be a dead loop.
    *
    * @param str buffer to write lemmas

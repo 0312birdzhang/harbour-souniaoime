@@ -49,7 +49,7 @@ class NGram {
   static NGram* instance_;
 
   bool initialized_;
-  uint32 idx_num_;
+  size_t idx_num_;
 
   size_t total_freq_none_sys_;
 

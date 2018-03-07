@@ -24,18 +24,18 @@
 extern "C" {
 #endif
 
-  namespace ime_pinyin {
+namespace ime_pinyin {
 
-  /**
+/**
    * Open the decoder engine via the system and user dictionary file names.
    *
    * @param fn_sys_dict The file name of the system dictionary.
    * @param fn_usr_dict The file name of the user dictionary.
    * @return true if open the decoder engine successfully.
    */
-  bool im_open_decoder(const char *fn_sys_dict, const char *fn_usr_dict);
+bool im_open_decoder(const char *fn_sys_dict, const char *fn_usr_dict);
 
-  /**
+/**
    * Open the decoder engine via the system dictionary FD and user dictionary
    * file name. Because on Android, the system dictionary is embedded in the
    * whole application apk file.
@@ -47,15 +47,15 @@ extern "C" {
    * counted in byte.
    * @return true if succeed.
    */
-  bool im_open_decoder_fd(int sys_fd, long start_offset, long length,
-                          const char *fn_usr_dict);
+bool im_open_decoder_fd(int sys_fd, long start_offset, long length,
+                        const char *fn_usr_dict);
 
-  /**
+/**
    * Close the decoder engine.
    */
-  void im_close_decoder();
+void im_close_decoder();
 
-  /**
+/**
    * Set maximum limitations for decoding. If this function is not called,
    * default values will be used. For example, due to screen size limitation,
    * the UI engine of the IME can only show a certain number of letters(input)
@@ -66,15 +66,15 @@ extern "C" {
    * @param max_sps_len Maximum length of the spelling string(Pinyin string).
    * @max_hzs_len Maximum length of the decoded Chinese character string.
    */
-  void im_set_max_lens(size_t max_sps_len, size_t max_hzs_len);
+void im_set_max_lens(size_t max_sps_len, size_t max_hzs_len);
 
-  /**
+/**
    * Flush cached data to persistent memory. Because at runtime, in order to
    * achieve best performance, some data is only store in memory.
    */
-  void im_flush_cache();
+void im_flush_cache();
 
-  /**
+/**
    * Use a spelling string(Pinyin string) to search. The engine will try to do
    * an incremental search based on its previous search result, so if the new
    * string has the same prefix with the previous one stored in the decoder,
@@ -87,9 +87,9 @@ extern "C" {
    * @param sps_len The length of the spelling string buffer.
    * @return The number of candidates.
    */
-  size_t im_search(const char* sps_buf, size_t sps_len);
+size_t im_search(const char* sps_buf, size_t sps_len);
 
-  /**
+/**
    * Make a delete operation in the current search result, and make research if
    * necessary.
    *
@@ -99,15 +99,15 @@ extern "C" {
    * in the spelling string, or the position in the result spelling id string.
    * @return The number of candidates.
    */
-  size_t im_delsearch(size_t pos, bool is_pos_in_splid,
-                      bool clear_fixed_this_step);
+size_t im_delsearch(size_t pos, bool is_pos_in_splid,
+                    bool clear_fixed_this_step);
 
-  /**
+/**
    * Reset the previous search result.
    */
-  void im_reset_search();
+void im_reset_search();
 
-  /**
+/**
    * Add a Pinyin letter to the current spelling string kept by decoder. If the
    * decoder fails in adding the letter, it will do nothing. im_get_sps_str()
    * can be used to get the spelling string kept by decoder currently.
@@ -115,18 +115,18 @@ extern "C" {
    * @param ch The letter to add.
    * @return The number of candidates.
    */
-  size_t im_add_letter(char ch);
+size_t im_add_letter(char ch);
 
-  /**
+/**
    * Get the spelling string kept by the decoder.
    *
    * @param decoded_len Used to return how many characters in the spelling
    * string is successfully parsed.
    * @return The spelling string kept by the decoder.
    */
-  const char *im_get_sps_str(size_t *decoded_len);
+const char *im_get_sps_str(size_t *decoded_len);
 
-  /**
+/**
    * Get a candidate(or choice) string.
    *
    * @param cand_id The id to get a candidate. Started from 0. Usually, id 0
@@ -135,10 +135,10 @@ extern "C" {
    * @param max_len The maximum length of the buffer.
    * @return cand_str if succeeds, otherwise NULL.
    */
-  char16* im_get_candidate(size_t cand_id, char16* cand_str,
-                           size_t max_len);
+char16* im_get_candidate(size_t cand_id, char16* cand_str,
+                         size_t max_len);
 
-  /**
+/**
    * Get the segmentation information(the starting positions) of the spelling
    * string.
    *
@@ -147,9 +147,9 @@ extern "C" {
    * elements in spl_start, and spl_start[L] is the posistion after the end of
    * the last spelling id.
    */
-  size_t im_get_spl_start_pos(const uint16 *&spl_start);
+size_t im_get_spl_start_pos(const uint16 *&spl_start);
 
-  /**
+/**
    * Choose a candidate and make it fixed. If the candidate does not match
    * the end of all spelling ids, new candidates will be provided from the
    * first unfixed position. If the candidate matches the end of the all
@@ -160,28 +160,28 @@ extern "C" {
    * @return The number of candidates. If after the selection, the whole result
    * string has been fixed, there will be only one candidate.
    */
-  size_t im_choose(size_t cand_id);
+size_t im_choose(size_t cand_id);
 
-  /**
+/**
    * Cancel the last selection, or revert the last operation of im_choose().
    *
    * @return The number of candidates.
    */
-  size_t im_cancel_last_choice();
+size_t im_cancel_last_choice();
 
-  /**
+/**
    * Get the number of fixed spelling ids, or Chinese characters.
    *
    * @return The number of fixed spelling ids, of Chinese characters.
    */
-  size_t im_get_fixed_len();
+size_t im_get_fixed_len();
 
-  /**
+/**
    * Cancel the input state and reset the search workspace.
    */
-  bool im_cancel_input();
+bool im_cancel_input();
 
-  /**
+/**
    * Get prediction candiates based on the given fixed Chinese string as the
    * history.
    *
@@ -190,30 +190,29 @@ extern "C" {
    * @param pre_buf Used to return prediction result list.
    * @return The number of predicted result string.
    */
-  size_t im_get_predicts(const char16 *his_buf,
-                         char16 (*&pre_buf)[kMaxPredictSize + 1]);
+size_t im_get_predicts(const char16 *his_buf,
+                       char16 (*&pre_buf)[kMaxPredictSize + 1]);
 
-  /**
+/**
    * Enable Shengmus in ShouZiMu mode.
    */
-  void im_enable_shm_as_szm(bool enable);
+void im_enable_shm_as_szm(bool enable);
 
-  /**
+/**
    * Enable Yunmus in ShouZiMu mode.
    */
-  void im_enable_ym_as_szm(bool enable);
+void im_enable_ym_as_szm(bool enable);
+/**
+ * Initializes or uninitializes the user dictionary.
+ *
+ * @param fn_usr_dict The file name of the user dictionary.
+ */
+void im_init_user_dictionary(const char *fn_usr_dict);
 
-  /**
-   * Initializes or uninitializes the user dictionary.
-   *
-   * @param fn_usr_dict The file name of the user dictionary.
-   */
-  void im_init_user_dictionary(const char *fn_usr_dict);
-
-  /**
-   * Returns the current status of user dictinary.
-   */
-  bool im_is_user_dictionary_enabled(void);
+/**
+ * Returns the current status of user dictinary.
+ */
+bool im_is_user_dictionary_enabled(void);
 }
 
 #ifdef __cplusplus
