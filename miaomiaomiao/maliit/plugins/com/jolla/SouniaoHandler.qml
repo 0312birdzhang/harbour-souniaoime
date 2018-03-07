@@ -37,33 +37,24 @@ InputHandler {
 
         Component.onCompleted:{
             gpy.init();
+            gpy.setUserDictionary(true);
         }
 
         function getMoreCandidates(){
-
             for (var i = pageSize; i < pred ; i++) {
-                console.log(gpy.candidateAt(i));
                 moreCandidates.append({text: gpy.candidateAt(i), type: "partial", segment: 0, candidate: i})
             }
-            fetchMany=true
-
+            fetchMany = true
         }
 
-        function  update_candidates(str) {
+        function update_candidates(str) {
             candidates.clear()
             moreCandidates.clear()
             fetchMany = false
             hasMore = false
-
             pred = gpy.search(str)
-            
-
-
-            pySqlStart = gpy.spellingStartPositions()
-            console.log(pySqlStart)
+            pySqlStart = gpy.getSplStart()
             olderSql = str
-
-
             if(pred > pageSize)
             {
                 hasMore = true
@@ -71,54 +62,46 @@ InputHandler {
             }else{
                 hasMore = false
             }
-
-            
-
-
             for (var i = 0; i < pred && i < pageSize; i++) {
-
                 candidates.append({text: gpy.candidateAt(i), type: "full", segment: 0, candidate: i})
             }
-
             candidatesUpdated()
         }
 
         function acceptPhrase(index, pr) {
-
-
-
-            var fixLen =-1
+            var fixLen = -1
             var nSize = -1
-            var item =""
+            var item = ""
             if(hasMore && fetchMany){
                 item = moreCandidates.get(index)
-                nSize = gpy.choose(index+pageSize)
+                nSize = gpy.chooceCandidate(index+pageSize)
                 fixLen = gpy.fixedLength()
                 pred =nSize
             }else{
                 item = candidates.get(index)
-                nSize = gpy.choose(index)
+                nSize = gpy.chooceCandidate(index)
                 fixLen  = gpy.fixedLength()
-                pred =nSize
+                pred = nSize
             }
 
 
             var flag = false
 
-            if(fixLen == pySqlStart[0])
-            {
-                flag = true
-            }else{
-                flag = false
-            }
+            // TODO
+//            if(fixLen == pySqlStart[0])
+//            {
+//                flag = true
+//            }else{
+//                flag = false
+//            }
 
-
+            flag = true;
 
 
             if (item.text !=""){
 
                 if(!flag){
-                    var tmpPy = gpy.getPyStr(false)
+                    var tmpPy = gpy.pinyinString(false)
 
                     var tmpSubPy = tmpPy.slice(pySqlStart[fixLen+1], tmpPy.length)
 

@@ -39,16 +39,16 @@ mkdir -p %{buildroot}/home/nemo/.cache/%{name}
 # >> install post
 # << install post
 
-%pre
-# >> pre
-systemctl-user restart maliit-server
+%post
+# >> post
+systemctl-user restart maliit-server || true
 
-# << pre
+# << post
 
-%preun
-# >> preun
-systemctl-user restart maliit-server
-# << preun
+%postun
+# >> postun
+systemctl-user restart maliit-server || true
+# << postun
 
 %clean
 rm -rf %{buildroot}

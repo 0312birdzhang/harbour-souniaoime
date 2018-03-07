@@ -158,6 +158,12 @@ int PinyinDecoderService::pinyinStringLength(bool decoded)
     return (int)py_len;
 }
 
+int PinyinDecoderService::getSplStart()
+{
+    const unsigned short *spl_start;
+    return (int)im_get_spl_start_pos(spl_start);
+}
+
 QVector<int> PinyinDecoderService::spellingStartPositions()
 {
     const unsigned short *spl_start;

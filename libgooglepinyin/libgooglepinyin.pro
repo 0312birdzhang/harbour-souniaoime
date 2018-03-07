@@ -67,9 +67,7 @@ DISTFILES = qmldir
     PRE_TARGETDEPS += $$copy_qmldir.target
 }
 
-data.files += data/rawdict_utf16_65105_freq.txt \
-              data/valid_utf16.txt \
-              data/dict_pinyin.dat
+data.files += data/dict_pinyin.dat
 
 qmldir.files = qmldir
 unix {

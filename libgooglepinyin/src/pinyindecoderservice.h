@@ -46,20 +46,21 @@ public:
     static PinyinDecoderService *getInstance();
     explicit PinyinDecoderService(QObject *parent = 0);
     Q_INVOKABLE bool init();
-    void setUserDictionary(bool enabled);
+    Q_INVOKABLE void setUserDictionary(bool enabled);
     bool isUserDictionaryEnabled() const;
     void setLimits(int maxSpelling, int maxHzsLen);
     Q_INVOKABLE int search(const QString &spelling);
     int deleteSearch(int pos, bool isPosInSpellingId, bool clearFixedInThisStep);
-    void resetSearch();
-    QString pinyinString(bool decoded);
+    Q_INVOKABLE void resetSearch();
+    Q_INVOKABLE QString pinyinString(bool decoded);
     int pinyinStringLength(bool decoded);
     Q_INVOKABLE QVector<int> spellingStartPositions();
+    Q_INVOKABLE int getSplStart();
     Q_INVOKABLE QString candidateAt(int index);
     QList<QString> fetchCandidates(int index, int count, int sentFixedLen);
-    int chooceCandidate(int index);
+    Q_INVOKABLE int chooceCandidate(int index);
     int cancelLastChoice();
-    int fixedLength();
+    Q_INVOKABLE int fixedLength();
     void flushCache();
     QList<QString> predictionList(const QString &history);
 
