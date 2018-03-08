@@ -1,4 +1,10 @@
 Name:       harbour-souniaoime
+
+%{!?qtc_qmake:%define qtc_qmake %qmake}
+%{!?qtc_qmake5:%define qtc_qmake5 %qmake5}
+%{!?qtc_make:%define qtc_make make}
+%{?qtc_builddir:%define _builddir %qtc_builddir}
+
 Version:    0.1
 Release:    2
 Summary:    PinyinIme for Sailfish OS
@@ -63,4 +69,4 @@ rm -rf %{buildroot}
 %{_datadir}/icons/
 %{_datadir}/applications/%{name}.desktop
 %{_libdir}/qt5/qml/xyz/birdzhang/ime
-%attr(0644, nemo, nemo)  /home/nemo/.cache/%{name}
+%attr(0755, nemo, nemo) /home/nemo/.cache/%{name}
