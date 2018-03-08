@@ -27,4 +27,4 @@ INSTALLS += target qml desktop icon maliit
 DISTFILES += \
     maliit/plugins/com/jolla/SouniaoHandler.qml \
     maliit/plugins/com/jolla/layouts/zh_cn_souniaoime.qml \
-    maliit/plugins/com/jolla/layouts/layouts_sz_google_pinyin.conf
+    maliit/plugins/com/jolla/layouts/layouts_souniaoime.conf
