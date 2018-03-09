@@ -55,7 +55,8 @@ SOURCES += \
     src/userdict.cpp \
     src/utf16char.cpp \
     src/utf16reader.cpp \
-    src/pinyindecoderservice.cpp
+    src/pinyindecoderservice.cpp \
+    src/pinyinime_dictbuilder.cpp
 
 DISTFILES = qmldir
 
