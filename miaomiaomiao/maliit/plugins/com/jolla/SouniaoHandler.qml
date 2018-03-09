@@ -1,27 +1,49 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import com.meego.maliitquick 1.0
 import com.jolla.keyboard 1.0
 import xyz.birdzhang.ime 1.0
 
 InputHandler {
-
+    id: handler
     property string preedit
     property var trie
     property bool trie_built: false
     property var regLetter : /^[A-Za-z]+$/
+    property int candidateSpaceIndex: -1
+
+    property bool composingEnabled: !keyboard.inSymView
+    property bool hasMore: composingEnabled && gpy.hasMore
+    //mod start
+    property bool pinyinMode: MInputMethodQuick.contentType !== Maliit.UrlContentType && MInputMethodQuick.contentType !== Maliit.EmailContentType
+
+
+    onPinyinModeChanged: {
+        handler.composingEnabled = handler.pinyinMode
+        keyboard.layout.pinyinMode = handler.pinyinMode
+        if (handler.preedit != "") {
+            commit(handler.preedit)
+        }
+        reset()
+    }
 
     onActiveChanged: {
         if (active) {
+            if(pinyinMode){
+                gpy.update_candidates(MInputMethodQuick.surroundingText.substring(0, MInputMethodQuick.cursorPosition))
+            }
+            keyboard.layout.pinyinMode = handler.pinyinMode
             keyboard.shiftKeyPressed = false
             keyboard.cycleShift()
             MInputMethodQuick.sendCommit("")
+        } else if(!pinyinMode && preedit != ""){
+            commit(preedit);
         } else {
-            preedit = ""
-            MInputMethodQuick.sendCommit("")
+            handler.clearPreedit()
         }
     }
 
-
+   
     QmlPinyin{
         id :gpy
         property var candidates: ListModel { }
@@ -53,7 +75,6 @@ InputHandler {
             fetchMany = false
             hasMore = false
             pred = gpy.search(str)
-//            pySqlStart = gpy.getSplStart()
             pySqlStart = gpy.spellingStartPositions()
             olderSql = str
             if(pred > pageSize)
@@ -136,21 +157,40 @@ InputHandler {
         }
     }
 
-
-    
-
-
-
     topItem: Component {
-        TopItem {
+        Column{
             id: topItem
-            Row {
+            width: parent  ? parent.width : 0
+            TopItem {
+                // visible:  !keyboard.inSymView
+                visible: false
+                width: parent.width
+                Rectangle {
+                    id: background
+                    anchors.fill: parent
+                    color: Theme.highlightBackgroundColor
+                    opacity: .05
+                }
+
+                Label {
+                    anchors.centerIn: parent
+                    horizontalAlignment: Text.AlignHCenter
+                    text: preedit
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                }
+            }
+            TopItem {
+                id: listTopItem
+                width: parent.width
                 SilicaListView {
                     id: listView
                     model: gpy.candidates
                     orientation: ListView.Horizontal
-                    width: topItem.width
-                    height: topItem.height
+                    width: parent.width
+                    height: parent.height
                     boundsBehavior: ((!keyboard.expandedPaste && Clipboard.hasText) || gpy.hasMore) ? Flickable.DragOverBounds : Flickable.StopAtBounds
                     header: pasteComponent
 
@@ -174,9 +214,10 @@ InputHandler {
 
                     delegate: BackgroundItem {
                         id: backGround
-                        onClicked: accept(model.index)
+                        // onClicked:  accept(model.index)
+                        onClicked: pinyinMode ? selectPhrase(model.text, model.index) : applyPrediction(model.text, model.index)
                         width: candidateText.width + Theme.paddingLarge * 2
-                        height: topItem.height
+                        height: listTopItem.height
 
                         Text {
                             id: candidateText
@@ -196,7 +237,7 @@ InputHandler {
                             } else if (atXEnd && gpy.hasMore) {
                                 gpy.fetchMany=true
                                 gpy.getMoreCandidates()
-                                
+
                             }
                         }
                     }
@@ -227,6 +268,48 @@ InputHandler {
                         onTriggered: listView.positionViewAtBeginning()
                     }
                 }
+                Label {
+                    id: switchLabel
+                    anchors.right: parent.right
+                    anchors.rightMargin: Theme.paddingMedium
+                    anchors.verticalCenter: parent.verticalCenter
+                    visible: false
+                    height: parent.height
+                    width: parent.width * 0.11
+                    font { pixelSize: Theme.fontSizeSmall; family: Theme.fontFamily }
+                    color: Theme.primaryColor
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+                    maximumLineCount: 1
+                    text: handler.pinyinMode ? "中" : "英"
+                    Rectangle {
+                        id: switchButton
+                        color: Theme.primaryColor
+                        opacity: 0.3 //0.17
+                        radius: geometry.keyRadius
+
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        height: parent.height * 0.8
+                        width: parent.width
+                        MouseArea {
+                            anchors.fill: parent
+                            onPressed: {
+                                switchLabel.color = Theme.highlightColor
+                                switchButton.color = Theme.highlightBackgroundColor
+                                switchButton.opacity = 0.6
+                            }
+                            onReleased: {
+                                switchLabel.color = Theme.primaryColor
+                                switchButton.color = Theme.primaryColor
+                                switchButton.opacity = 0.3
+                            }
+                            onClicked: {
+                                handler.pinyinMode = !handler.pinyinMode
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -247,7 +330,12 @@ InputHandler {
 
 
 
-
+    onComposingEnabledChanged: {
+        if (preedit.length > 0) {
+            MInputMethodQuick.sendCommit(preedit)
+            gpy.resetSearch()
+        }
+    }
 
 
     Rectangle {
@@ -294,7 +382,7 @@ InputHandler {
                         id: gridItemBackground
                         height: Theme.itemSizeSmall
                         width: Math.ceil((gridText.contentWidth + 2*Theme.paddingMedium) / gridView.cellWidth)* gridView.cellWidth
-                        onClicked: accept(model.index)
+                        onClicked: pinyinMode ? selectPhrase(model.text, model.index) : applyPrediction(model.text, model.index) //accept(model.index)
 
                         Text {
                             id: gridText
@@ -331,9 +419,10 @@ InputHandler {
             SilicaListView {
                 id: verticalList
 
-                model: gpy.candidates
+                model: composingEnabled ? gpy.candidates : 0
                 anchors.fill: parent
                 clip: true
+                boundsBehavior: handler.hasMore ? Flickable.DragOverBounds : Flickable.StopAtBounds
                 header: Component {
                     PasteButtonVertical {
                         visible: Clipboard.hasText
@@ -372,7 +461,7 @@ InputHandler {
 
 
                 delegate: BackgroundItem {
-                    onClicked: accept(model.index)
+                    onClicked: pinyinMode ? selectPhrase(model.text, model.index) : applyPrediction(model.text, model.index) //accept(model.index)
                     width: parent.width
                     height: geometry.keyHeightLandscape // assuming landscape!
 
@@ -385,6 +474,8 @@ InputHandler {
                         fontSizeMode: Text.HorizontalFit
                         //                        textFormat: Text.StyledText
                         text: model.text
+                        wrapMode: Text.Wrap
+                        maximumLineCount: 2
                     }
                 }
 
@@ -432,6 +523,7 @@ InputHandler {
             }
         }
     }
+
 
 
 
@@ -501,6 +593,36 @@ InputHandler {
         gpy.acceptPhrase(index, preedit)
     }
 
+    function selectPhrase(phrase, index) {
+        console.log("phrase clicked: " + phrase)
+        // MInputMethodQuick.sendCommit(phrase)
+        gpy.acceptPhrase(index)
+        if (preedit.length > 0 ) {
+            MInputMethodQuick.sendPreedit(preedit)
+        }
+    }
+
+    function applyPrediction(replacement, index) {
+        console.log("candidate clicked: " + replacement + "\n")
+        replacement = replacement + " "
+        candidateSpaceIndex = MInputMethodQuick.surroundingTextValid
+                ? MInputMethodQuick.cursorPosition + replacement.length : -1
+        commit(replacement)
+        // thread.acceptPrediction(index)
+    }
+
+    function selectPhraseAndShrink(phrase, index) {
+        selectPhrase(phrase, index)
+        gpy.fetchMany = false
+    }
+
+    function clearPreedit(){
+        if(preedit.length > 0){
+            MInputMethodQuick.sendCommit(preedit)
+            gpy.resetSearch()
+        }
+        handled.preedit = ""
+    }
     function reset() {
         gpy.candidates.clear()
         preedit = ""

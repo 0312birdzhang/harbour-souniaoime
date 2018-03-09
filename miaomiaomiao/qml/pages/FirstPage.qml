@@ -36,9 +36,14 @@ Page{
                 height: 23.33
             }
 
+//            TextField{
+//                width: parent.width
+//                focus: true
+//            }
             Image{
                 source: "./notexist.jpg"
                 width: parent.width
+//                visible: false
                 height: width
                 anchors.margins: Theme.paddingSmall
                 fillMode: Image.PreserveAspectFit
