@@ -63,6 +63,7 @@ InputHandler {
         }
 
         function getMoreCandidates(){
+            moreCandidates.clear();
             for (var i = pageSize; i < pred ; i++) {
                 moreCandidates.append({text: gpy.candidateAt(i), type: "partial", segment: 0, candidate: i})
             }
@@ -738,7 +739,7 @@ InputHandler {
         return "\'-".indexOf(character) >= 0
     }
     function applyPrediction(replacement, index) {
-        console.log("candidate clicked: " + replacement + "\n")
+//        console.log("candidate clicked: " + replacement + "\n")
         replacement = replacement + " "
         candidateSpaceIndex = MInputMethodQuick.surroundingTextValid
                 ? MInputMethodQuick.cursorPosition + replacement.length : -1

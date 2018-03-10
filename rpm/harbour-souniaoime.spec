@@ -6,7 +6,7 @@ Name:       harbour-souniaoime
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 
 Version:    0.2
-Release:    1
+Release:    2
 Summary:    PinyinIme for Sailfish OS
 License:    LGPLv2
 Group:      Qt/Qt
