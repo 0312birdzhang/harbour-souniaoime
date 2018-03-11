@@ -755,12 +755,13 @@ InputHandler {
 
         for (var i = 0; i < tmppredictionsList.length; i++) {
             if(i > gpy.pageSize){
-                gpy.moreCandidates.append({text: tmppredictionsList[i], type: "full", segment: 0, candidate: i})
+                gpy.moreCandidates.append({text: tmppredictionsList[i], type: "partial", segment: 0, candidate: i})
             }else{
-                gpy.candidates.append({text: tmppredictionsList[i], type: "partial", segment: 0, candidate: i})
+                gpy.candidates.append({text: tmppredictionsList[i], type: "full", segment: 0, candidate: i})
             }
         }
         gpy.hasMore = tmppredictionsList.length > gpy.pageSize
+        gpy.fetchMany = tmppredictionsList.length > gpy.pageSize
         gpy.candidatesUpdated();
     }
 
