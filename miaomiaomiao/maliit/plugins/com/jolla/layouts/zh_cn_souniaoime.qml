@@ -59,50 +59,50 @@ KeyboardLayout {
         CharacterKey { caption: "s"; captionShifted: "S"; symView: pinyinLayout.pinyinMode ? "】" : "]"; symView2: pinyinLayout.pinyinMode ? "｝" : "}" }
         CharacterKey { caption: "d"; captionShifted: "D"; symView: pinyinLayout.pinyinMode ? "、" : "\\"; symView2: pinyinLayout.pinyinMode ? "｜" : "|"}
         CharacterKey {
-        showPopper: keyboard.inSymView ? false : true
-        caption: keyboard.inSymView ? "◀" : "f";
-        captionShifted: keyboard.inSymView ? "◀" : "F";
-        text: keyboard.inSymView ? "" : keyboard.isShifted ? "F" : "f"
-        key: keyboard.inSymView ? Qt.Key_Home : Qt.Key_F;
-        repeat: keyboard.inSymView? true : false;
-        Rectangle{
-            visible: keyboard.inSymView
-            anchors.fill: parent
-            anchors.margins: Theme.paddingMedium
-            opacity: 0.05
-            radius: geometry.keyRadius
+            showPopper: keyboard.inSymView ? false : true
+            caption: keyboard.inSymView ? "◀" : "f";
+            captionShifted: keyboard.inSymView ? "◀" : "F";
+            text: keyboard.inSymView ? "" : keyboard.isShifted ? "F" : "f"
+            key: keyboard.inSymView ? Qt.Key_Home : Qt.Key_F;
+            repeat: keyboard.inSymView? true : false;
+            Rectangle{
+                visible: keyboard.inSymView
+                anchors.fill: parent
+                anchors.margins: Theme.paddingMedium
+                opacity: 0.05
+                radius: geometry.keyRadius
+            }
         }
-    }
         CharacterKey {
-        showPopper: keyboard.inSymView ? false : true
-        caption: keyboard.inSymView ? "△" : "g";
-        captionShifted: keyboard.inSymView ? "△" : "G";
-        text: keyboard.inSymView ? "" : keyboard.isShifted ? "G" : "g"
-        key: keyboard.inSymView ? Qt.Key_Up : Qt.Key_G;
-        repeat: keyboard.inSymView? true : false;
-        Rectangle{
-            visible: keyboard.inSymView
-            anchors.fill: parent
-            anchors.margins: Theme.paddingMedium
-            opacity: 0.05
-            radius: geometry.keyRadius
+            showPopper: keyboard.inSymView ? false : true
+            caption: keyboard.inSymView ? "△" : "g";
+            captionShifted: keyboard.inSymView ? "△" : "G";
+            text: keyboard.inSymView ? "" : keyboard.isShifted ? "G" : "g"
+            key: keyboard.inSymView ? Qt.Key_Up : Qt.Key_G;
+            repeat: keyboard.inSymView? true : false;
+            Rectangle{
+                visible: keyboard.inSymView
+                anchors.fill: parent
+                anchors.margins: Theme.paddingMedium
+                opacity: 0.05
+                radius: geometry.keyRadius
+            }
         }
-    }
         CharacterKey {
-        showPopper: keyboard.inSymView ? false : true
-        caption: keyboard.inSymView ? "▶" : "h";
-        captionShifted: keyboard.inSymView ? "▶" : "H";
-        text: keyboard.inSymView ? "" : keyboard.isShifted ? "H" : "h"
-        key: keyboard.inSymView ? Qt.Key_End : Qt.Key_H;
-        repeat: keyboard.inSymView? true : false;
-        Rectangle{
-            visible: keyboard.inSymView
-            anchors.fill: parent
-            anchors.margins: Theme.paddingMedium
-            opacity: 0.05
-            radius: geometry.keyRadius
+            showPopper: keyboard.inSymView ? false : true
+            caption: keyboard.inSymView ? "▶" : "h";
+            captionShifted: keyboard.inSymView ? "▶" : "H";
+            text: keyboard.inSymView ? "" : keyboard.isShifted ? "H" : "h"
+            key: keyboard.inSymView ? Qt.Key_End : Qt.Key_H;
+            repeat: keyboard.inSymView? true : false;
+            Rectangle{
+                visible: keyboard.inSymView
+                anchors.fill: parent
+                anchors.margins: Theme.paddingMedium
+                opacity: 0.05
+                radius: geometry.keyRadius
+            }
         }
-    }
         CharacterKey { caption: "j"; captionShifted: "J"; symView: pinyinLayout.pinyinMode ? "－" : "-"; symView2: pinyinLayout.pinyinMode ? "—" : "_"}
         CharacterKey { caption: "k"; captionShifted: "K"; symView: pinyinLayout.pinyinMode ? "＝" : "="; symView2: pinyinLayout.pinyinMode ? "＋" : "+"}
         CharacterKey { caption: "l"; captionShifted: "L"; symView: pinyinLayout.pinyinMode ? "｀" : "`"; symView2: pinyinLayout.pinyinMode ? "～" : "~" }
@@ -114,54 +114,54 @@ KeyboardLayout {
         CharacterKey { caption: "z"; captionShifted: "Z"; symView: pinyinLayout.pinyinMode ? "／" : "/"; symView2: pinyinLayout.pinyinMode ? "？" : "?"}
         CharacterKey { caption: "x"; captionShifted: "X"; symView: pinyinLayout.pinyinMode ? "‘" : "€"; symView2: pinyinLayout.pinyinMode ? "“" : "£"}
         CharacterKey {
-        showPopper: keyboard.inSymView ? false : true
-        caption: keyboard.inSymView ? "◁" : "c";
-        captionShifted: keyboard.inSymView ? "◁" : "C";
-        text: keyboard.inSymView ? "" : keyboard.isShifted ? "C" : "c"
-        key: keyboard.inSymView ? Qt.Key_Left : Qt.Key_C;
-        repeat: keyboard.inSymView? true : false;
-        Rectangle{
-            visible: keyboard.inSymView
-            anchors.fill: parent
-            anchors.margins: Theme.paddingMedium
-            opacity: 0.05
-            radius: geometry.keyRadius
+            showPopper: keyboard.inSymView ? false : true
+            caption: keyboard.inSymView ? "◁" : "c";
+            captionShifted: keyboard.inSymView ? "◁" : "C";
+            text: keyboard.inSymView ? "" : keyboard.isShifted ? "C" : "c"
+            key: keyboard.inSymView ? Qt.Key_Left : Qt.Key_C;
+            repeat: keyboard.inSymView? true : false;
+            Rectangle{
+                visible: keyboard.inSymView
+                anchors.fill: parent
+                anchors.margins: Theme.paddingMedium
+                opacity: 0.05
+                radius: geometry.keyRadius
+            }
         }
-    }
 
-    KeySeparator {
-        visible: (separator === SeparatorState.AutomaticSeparator && implicitSeparator)
-    }
-        CharacterKey {
-        showPopper: keyboard.inSymView ? false : true
-        caption: keyboard.inSymView ? "▽" : "v";
-        captionShifted: keyboard.inSymView ? "▽" : "V";
-        text: keyboard.inSymView ? "" : keyboard.isShifted ? "V" : "v"
-        key: keyboard.inSymView ? Qt.Key_Down : Qt.Key_V;
-        repeat: keyboard.inSymView? true : false;
-        Rectangle{
-            visible: keyboard.inSymView
-            anchors.fill: parent
-            anchors.margins: Theme.paddingMedium
-            opacity: 0.05
-            radius: geometry.keyRadius
+        KeySeparator {
+            visible: (separator === SeparatorState.AutomaticSeparator && implicitSeparator)
         }
-    }
         CharacterKey {
-        showPopper: keyboard.inSymView ? false : true
-        caption: keyboard.inSymView ? "▷" : "b";
-        captionShifted: keyboard.inSymView ? "▷" : "B";
-        text: keyboard.inSymView ? "" : keyboard.isShifted ? "B" : "b"
-        key: keyboard.inSymView ? Qt.Key_Right : Qt.Key_B;
-        repeat: keyboard.inSymView? true : false;
-        Rectangle{
-            visible: keyboard.inSymView
-            anchors.fill: parent
-            anchors.margins: Theme.paddingMedium
-            opacity: 0.05
-            radius: geometry.keyRadius
+            showPopper: keyboard.inSymView ? false : true
+            caption: keyboard.inSymView ? "▽" : "v";
+            captionShifted: keyboard.inSymView ? "▽" : "V";
+            text: keyboard.inSymView ? "" : keyboard.isShifted ? "V" : "v"
+            key: keyboard.inSymView ? Qt.Key_Down : Qt.Key_V;
+            repeat: keyboard.inSymView? true : false;
+            Rectangle{
+                visible: keyboard.inSymView
+                anchors.fill: parent
+                anchors.margins: Theme.paddingMedium
+                opacity: 0.05
+                radius: geometry.keyRadius
+            }
         }
-    }
+        CharacterKey {
+            showPopper: keyboard.inSymView ? false : true
+            caption: keyboard.inSymView ? "▷" : "b";
+            captionShifted: keyboard.inSymView ? "▷" : "B";
+            text: keyboard.inSymView ? "" : keyboard.isShifted ? "B" : "b"
+            key: keyboard.inSymView ? Qt.Key_Right : Qt.Key_B;
+            repeat: keyboard.inSymView? true : false;
+            Rectangle{
+                visible: keyboard.inSymView
+                anchors.fill: parent
+                anchors.margins: Theme.paddingMedium
+                opacity: 0.05
+                radius: geometry.keyRadius
+            }
+        }
         CharacterKey { caption: "n"; captionShifted: "N"; symView: pinyinLayout.pinyinMode ? "；" : ";"; symView2 : pinyinLayout.pinyinMode ? "：" : ":" }
         CharacterKey { caption: "m"; captionShifted: "M"; symView: pinyinLayout.pinyinMode ? "’" : "\'"; symView2: pinyinLayout.pinyinMode ? "”" : "\"" }
 
@@ -173,9 +173,9 @@ KeyboardLayout {
         splitIndex: 4
         SymbolKey {
             caption: keyboard.inSymView ? "拼音" : "符号" // symbols/pinyin
-        //implicitWidth: functionKeyWidth * 0.75
+            //implicitWidth: functionKeyWidth * 0.75
         }
-    /*FunctionKey {
+        /*FunctionKey {
                 //icon.source: "image://theme/icon-l-left" + (pressed ? ("?" + Theme.highlightColor) : "")
         caption: "←"
                 repeat: true
@@ -186,15 +186,15 @@ KeyboardLayout {
 
         CharacterKey {
             caption: pinyinLayout.pinyinMode? "，" : MInputMethodQuick.contentType === Maliit.UrlContentType
-                     ? "/"
-                     : MInputMethodQuick.contentType === Maliit.EmailContentType
-                       ? "@"
-                       : ","
+                                              ? "/"
+                                              : MInputMethodQuick.contentType === Maliit.EmailContentType
+                                                ? "@"
+                                                : ","
             captionShifted: pinyinLayout.pinyinMode? "，" : MInputMethodQuick.contentType === Maliit.UrlContentType
-                     ? "/"
-                     : MInputMethodQuick.contentType === Maliit.EmailContentType
-                       ? "@"
-                       : ","
+                                                     ? "/"
+                                                     : MInputMethodQuick.contentType === Maliit.EmailContentType
+                                                       ? "@"
+                                                       : ","
             symView: ","
             symView2: pinyinLayout.pinyinMode? "《" : "<"
             implicitWidth: punctuationKeyWidth * 0.7
@@ -205,9 +205,9 @@ KeyboardLayout {
 
 
         SpacebarKey {
-        //implicitWidth: parent.width - functionKeyWidth * 2.2 - punctuationKeyWidth * 1.4
+            //implicitWidth: parent.width - functionKeyWidth * 2.2 - punctuationKeyWidth * 1.4
             fixedWidth: !splitActive
-    }
+        }
         SpacebarKey {
             active: splitActive
             languageLabel: ""
@@ -215,15 +215,15 @@ KeyboardLayout {
 
         CharacterKey {
             caption: pinyinLayout.pinyinMode ? "。" : MInputMethodQuick.contentType === Maliit.UrlContentType
-                     ? "."
-                     : MInputMethodQuick.contentType === Maliit.EmailContentType
-                       ? "."
-                       : "."
+                                               ? "."
+                                               : MInputMethodQuick.contentType === Maliit.EmailContentType
+                                                 ? "."
+                                                 : "."
             captionShifted: pinyinLayout.pinyinMode ? "。" : MInputMethodQuick.contentType === Maliit.UrlContentType
-                     ? "."
-                     : MInputMethodQuick.contentType === Maliit.EmailContentType
-                       ? "."
-                       : "."
+                                                      ? "."
+                                                      : MInputMethodQuick.contentType === Maliit.EmailContentType
+                                                        ? "."
+                                                        : "."
             symView: "."
             symView2: pinyinLayout.pinyinMode? "》" : ">"
             implicitWidth: punctuationKeyWidth * 0.7
@@ -232,7 +232,7 @@ KeyboardLayout {
             separator: SeparatorState.HiddenSeparator
 
         }
-    /*FunctionKey {
+        /*FunctionKey {
                 //icon.source: "image://theme/icon-l-right" + (pressed ? ("?" + Theme.highlightColor) : "")
         caption: "→"
                 repeat: true
@@ -241,7 +241,7 @@ KeyboardLayout {
         }*/
 
         EnterKey {
-        //implicitWidth: functionKeyWidth * 0.75
-    }
+            //implicitWidth: functionKeyWidth * 0.75
+        }
     }
 }

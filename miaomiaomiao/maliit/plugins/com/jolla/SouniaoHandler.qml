@@ -30,12 +30,13 @@ InputHandler {
     onActiveChanged: {
         if (active) {
             if(pinyinMode){
-                gpy.update_candidates(MInputMethodQuick.surroundingText.substring(0, MInputMethodQuick.cursorPosition))
+                getPredictions(false);
             }
             keyboard.layout.pinyinMode = handler.pinyinMode
             keyboard.shiftKeyPressed = false
-            keyboard.cycleShift()
-            MInputMethodQuick.sendCommit("")
+            keyboard.cycleShift();
+            MInputMethodQuick.sendCommit("");
+
         } else if(!pinyinMode && preedit != ""){
             commit(preedit);
         } else {
@@ -48,7 +49,7 @@ InputHandler {
         id :gpy
         property var candidates: ListModel { }
         property var moreCandidates: ListModel { }
-        property var pySqlStart
+        property var pySqlStart: []
         property var olderSql
         property bool hasMore:false
         property bool fetchMany:false
@@ -274,7 +275,6 @@ InputHandler {
                     anchors.right: parent.right
                     anchors.rightMargin: Theme.paddingMedium
                     anchors.verticalCenter: parent.verticalCenter
-                    //                    visible: false
                     height: parent.height
                     width: parent.width * 0.11
                     font { pixelSize: Theme.fontSizeSmall; family: Theme.fontFamily }
@@ -532,8 +532,6 @@ InputHandler {
 
 
     function handleKeyClick() {
-
-        
         var handled = false
         keyboard.expandedPaste = false
         if (pinyinMode) {
@@ -569,11 +567,13 @@ InputHandler {
                 }
 
                 handled = true
+            } else if (pressedKey.key === Qt.Key_Backspace && preedit == "") {
+                getPredictions(true);
             } else if (pressedKey.key === Qt.Key_Home) {
                 MInputMethodQuick.sendKey(Qt.Key_Home, 0, "", Maliit.KeyClick)
-            }else if (pressedKey.key === Qt.Key_End) {
+            } else if (pressedKey.key === Qt.Key_End) {
                 MInputMethodQuick.sendKey(Qt.Key_End, 0, "", Maliit.KeyClick)
-            }else if (pressedKey.key === Qt.Key_Up) {
+            } else if (pressedKey.key === Qt.Key_Up) {
                 MInputMethodQuick.sendKey(Qt.Key_Up, 0, "", Maliit.KeyClick)
             } else if (pressedKey.key === Qt.Key_Down) {
                 MInputMethodQuick.sendKey(Qt.Key_Down, 0, "", Maliit.KeyClick)
@@ -598,7 +598,6 @@ InputHandler {
                 handled = true
             }
         }else{
-
             if (pressedKey.key === Qt.Key_Space) {
                 if (preedit !== "") {
                     commit(preedit + " ")
@@ -729,10 +728,40 @@ InputHandler {
     function selectPhrase(phrase, index) {
         console.log("phrase clicked: " + phrase)
         // MInputMethodQuick.sendCommit(phrase)
-        gpy.acceptPhrase(index)
+        gpy.acceptPhrase(index);
+        preedit = "";
         if (preedit.length > 0 ) {
             MInputMethodQuick.sendPreedit(preedit)
         }
+        getPredictions(false);
+
+    }
+
+     //预测
+    function getPredictions(isDelete){
+        gpy.candidates.clear();
+        var tmppredictionsList = [];
+        if(!isDelete){
+            tmppredictionsList = gpy.predictionList(
+                    MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-1,
+                                                                    MInputMethodQuick.cursorPosition)
+                        );
+        }else{
+            tmppredictionsList = MInputMethodQuick.surroundingText.length > 2 ?
+                                gpy.predictionList(MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-2,
+                                                                                                       MInputMethodQuick.cursorPosition-1)
+                                                           ):[]
+        }
+
+        for (var i = 0; i < tmppredictionsList.length; i++) {
+            if(i > gpy.pageSize){
+                gpy.moreCandidates.append({text: tmppredictionsList[i], type: "full", segment: 0, candidate: i})
+            }else{
+                gpy.candidates.append({text: tmppredictionsList[i], type: "partial", segment: 0, candidate: i})
+            }
+        }
+        gpy.hasMore = tmppredictionsList.length > gpy.pageSize
+        gpy.candidatesUpdated();
     }
 
     function isInputCharacter(character) {
@@ -757,7 +786,7 @@ InputHandler {
             MInputMethodQuick.sendCommit(preedit)
             gpy.resetSearch()
         }
-        handled.preedit = ""
+        handler.preedit = ""
     }
     function reset() {
         gpy.candidates.clear()
