@@ -75,20 +75,16 @@ bool PinyinDecoderService::init()
 
     QString sysDict(QString::fromLatin1(qgetenv("QT_VIRTUALKEYBOARD_PINYIN_DICTIONARY").constData()));
     if (sysDict.isEmpty())
-//        sysDict = QLibraryInfo::location(QLibraryInfo::DataPath) + "/qtvirtualkeyboard/pinyin/dict_pinyin.dat";
-        sysDict = "/usr/share/harbour-souniaoime/data/dict_pinyin.dat";
+        sysDict = "/usr/share/harbour-souniaoime/data/dict_pinyin_large.dat";
 
-//    QString usrDictPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
     QString usrDictPath = "/home/nemo/.cache/harbour-souniaoime";
     QFileInfo usrDictInfo(usrDictPath + "/usr_dict.dat");
     if (!usrDictInfo.exists()) {
-        // VIRTUALKEYBOARD_DEBUG() << "PinyinDecoderService::init(): creating directory for user dictionary" << usrDictInfo.absolutePath();
         QDir().mkpath(usrDictInfo.absolutePath());
     }
 
     initDone = im_open_decoder(sysDict.toUtf8().constData(), usrDictInfo.absoluteFilePath().toUtf8().constData());
     if (!initDone){
-        // VIRTUALKEYBOARD_DEBUG() << "Could not initialize pinyin engine. sys_dict:" << sysDict << "usr_dict:" << usrDictInfo.absoluteFilePath();
     }
     return initDone;
 }

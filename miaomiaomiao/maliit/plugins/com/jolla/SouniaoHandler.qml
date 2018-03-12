@@ -761,7 +761,6 @@ InputHandler {
             }
         }
         gpy.hasMore = tmppredictionsList.length > gpy.pageSize
-        gpy.fetchMany = tmppredictionsList.length > gpy.pageSize
         gpy.candidatesUpdated();
     }
 
