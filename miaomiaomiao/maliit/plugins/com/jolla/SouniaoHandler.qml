@@ -11,6 +11,7 @@ InputHandler {
     property bool trie_built: false
     property var regLetter : /^[A-Za-z]+$/
     property int candidateSpaceIndex: -1
+    property int maxsize: 80
 
     property bool composingEnabled: !keyboard.inSymView
     property bool hasMore: composingEnabled && gpy.hasMore
@@ -737,32 +738,32 @@ InputHandler {
 
     }
 
-     //预测
-    function getPredictions(isDelete){
-        gpy.candidates.clear();
-        var tmppredictionsList = [];
-        if(!isDelete){
-            tmppredictionsList = gpy.predictionList(
-                    MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-1,
-                                                                    MInputMethodQuick.cursorPosition)
-                        );
-        }else{
-            tmppredictionsList = MInputMethodQuick.surroundingText.length > 2 ?
-                                gpy.predictionList(MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-2,
-                                                                                                       MInputMethodQuick.cursorPosition-1)
-                                                           ):[]
-        }
 
-        for (var i = 0; i < tmppredictionsList.length; i++) {
-            if(i > gpy.pageSize){
-                gpy.moreCandidates.append({text: tmppredictionsList[i], type: "partial", segment: 0, candidate: i})
+    function getPredictions(isDelete){
+            gpy.candidates.clear();
+            var tmppredictionsList = [];
+            if(!isDelete){
+                tmppredictionsList = gpy.predictionList(
+                        MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-1,
+                                                                        MInputMethodQuick.cursorPosition)
+                            );
             }else{
-                gpy.candidates.append({text: tmppredictionsList[i], type: "full", segment: 0, candidate: i})
+                tmppredictionsList = MInputMethodQuick.surroundingText.length > 2 ?
+                                    gpy.predictionList(MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-2,
+                                                                                                           MInputMethodQuick.cursorPosition-1)
+                                                               ):[]
             }
+
+            for (var i = 0; i < tmppredictionsList.length; i++) {
+//                if(i > gpy.pageSize){
+//                    gpy.moreCandidates.append({text: tmppredictionsList[i], type: "partial", segment: 0, candidate: i})
+//                }else{
+                    gpy.candidates.append({text: tmppredictionsList[i], type: "partial", segment: 0, candidate: i})
+//                }
+            }
+            gpy.hasMore = false;
+            gpy.candidatesUpdated();
         }
-        gpy.hasMore = tmppredictionsList.length > gpy.pageSize
-        gpy.candidatesUpdated();
-    }
 
     function isInputCharacter(character) {
         return "\'-".indexOf(character) >= 0
@@ -796,7 +797,6 @@ InputHandler {
         gpy.moreCandidates.clear()
         gpy.fetchMany = false
         gpy.hasMore = false
-        
         if (keyboard.shiftState !== ShiftState.LockedShift) {
             keyboard.shiftState = ShiftState.NoShift
         }
