@@ -63,7 +63,7 @@ public:
     int cancelLastChoice();
     Q_INVOKABLE int fixedLength();
     void flushCache();
-    Q_INVOKABLE QList<QString> predictionList(const QString &history);
+    Q_INVOKABLE QList<QString> predictionList(const QString &history, int fetchSize);
 
 private:
     static QScopedPointer<PinyinDecoderService> _instance;

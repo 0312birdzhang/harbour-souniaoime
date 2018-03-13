@@ -222,13 +222,13 @@ void PinyinDecoderService::flushCache()
     im_flush_cache();
 }
 
-QList<QString> PinyinDecoderService::predictionList(const QString &history)
+QList<QString> PinyinDecoderService::predictionList(const QString &history, int fetchSize)
 {
     QList<QString> predictList;
     char16 (*predictItems)[kMaxPredictSize + 1] = 0;
     int predictNum = int(im_get_predicts(history.utf16(), predictItems));
     predictList.reserve(predictNum);
-    for (int i = 0; i < predictNum; i++)
+    for (int i = 0; i <= fetchSize; i++)
         predictList.append(QString((QChar *)predictItems[i]));
     return predictList;
 }

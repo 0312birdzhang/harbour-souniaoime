@@ -17,7 +17,7 @@ InputHandler {
     property bool hasMore: composingEnabled && gpy.hasMore
     //mod start
     property bool pinyinMode: MInputMethodQuick.contentType !== Maliit.UrlContentType && MInputMethodQuick.contentType !== Maliit.EmailContentType
-
+    property int cursorIndex: MInputMethodQuick.cursorPosition
 
     onPinyinModeChanged: {
         handler.composingEnabled = handler.pinyinMode
@@ -26,6 +26,12 @@ InputHandler {
             commit(handler.preedit)
         }
         reset()
+    }
+
+    onCursorIndexChanged: {
+        if(pinyinMode){
+            getPredictions(false);
+        }
     }
 
     onActiveChanged: {
@@ -54,7 +60,8 @@ InputHandler {
         property var olderSql
         property bool hasMore:false
         property bool fetchMany:false
-        property int pageSize:20
+        property int pageSize: 20 //TODO configroup
+        property int fetchSize: 15 //TODO configroup
         property int pred:0
 
         signal candidatesUpdated
@@ -569,7 +576,7 @@ InputHandler {
 
                 handled = true
             } else if (pressedKey.key === Qt.Key_Backspace && preedit == "") {
-                getPredictions(true);
+//                getPredictions(true);
             } else if (pressedKey.key === Qt.Key_Home) {
                 MInputMethodQuick.sendKey(Qt.Key_Home, 0, "", Maliit.KeyClick)
             } else if (pressedKey.key === Qt.Key_End) {
@@ -734,36 +741,32 @@ InputHandler {
         if (preedit.length > 0 ) {
             MInputMethodQuick.sendPreedit(preedit)
         }
-        getPredictions(false);
-
     }
 
 
     function getPredictions(isDelete){
-            gpy.candidates.clear();
-            var tmppredictionsList = [];
-            if(!isDelete){
-                tmppredictionsList = gpy.predictionList(
-                        MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-1,
-                                                                        MInputMethodQuick.cursorPosition)
-                            );
-            }else{
-                tmppredictionsList = MInputMethodQuick.surroundingText.length > 2 ?
-                                    gpy.predictionList(MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-2,
-                                                                                                           MInputMethodQuick.cursorPosition-1)
-                                                               ):[]
-            }
-
-            for (var i = 0; i < tmppredictionsList.length; i++) {
-//                if(i > gpy.pageSize){
-//                    gpy.moreCandidates.append({text: tmppredictionsList[i], type: "partial", segment: 0, candidate: i})
-//                }else{
-                    gpy.candidates.append({text: tmppredictionsList[i], type: "partial", segment: 0, candidate: i})
-//                }
-            }
-            gpy.hasMore = false;
-            gpy.candidatesUpdated();
+        preedit = "";
+        commit(preedit)
+        gpy.candidates.clear();
+        var tmppredictionsList = [];
+        if(!isDelete){
+            tmppredictionsList = gpy.predictionList(
+                    MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-1,
+                                                                    MInputMethodQuick.cursorPosition),
+                        gpy.fetchSize);
+        }else{
+            tmppredictionsList = MInputMethodQuick.surroundingText.length > 2 ?
+                                gpy.predictionList(MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-2,
+                                                                                               MInputMethodQuick.cursorPosition-1),
+                                                   gpy.fetchSize):[]
         }
+
+        for (var i = 0; i < tmppredictionsList.length; i++) {
+            gpy.candidates.append({text: tmppredictionsList[i], type: "full", segment: 0, candidate: i})
+        }
+        gpy.hasMore = false;
+        gpy.candidatesUpdated();
+    }
 
     function isInputCharacter(character) {
         return "\'-".indexOf(character) >= 0
