@@ -1,8 +1,14 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import Nemo.Configuration 1.0
 
 Page{
-
+    ConfigurationGroup{
+        id: config
+        path: "/app/xyz.birdzhang.ime"
+        property int pageSize: 20
+        property int fetchSize: 15
+    }
     SilicaFlickable{
         anchors.fill: parent
         contentHeight: column.height
@@ -49,10 +55,48 @@ Page{
                 horizontalAlignment: Text.AlignRight
             }
 
-//            TextField{
-//                width: parent.width
-//                focus: true
-//            }
+            Item {
+                width: parent.width
+                height: Theme.paddingSmall
+            }
+
+            SectionHeader{
+                text: "自定义"
+            }
+
+            SectionHeader{
+                text: "联想词数量"
+                font.pixelSize: Theme.fontSizeExtraSmall
+            }
+            Slider {
+                minimumValue: 5
+                maximumValue: 20
+                stepSize: 1
+                value: config.fetchSize
+                width: parent.width
+                valueText:  value
+                onValueChanged: {
+                    config.fetchSize = value;
+                }
+            }
+
+            SectionHeader{
+                text: "候选词数量"
+                font.pixelSize: Theme.fontSizeExtraSmall
+            }
+
+            Slider {
+                minimumValue: 10
+                maximumValue: 25
+                stepSize: 1
+                value: config.pageSize
+                width: parent.width
+                valueText: value
+                onValueChanged: {
+                    config.pageSize = value;
+                }
+            }
+
             Image{
                 source: "./notexist.jpg"
                 width: parent.width - Theme.paddingLarge

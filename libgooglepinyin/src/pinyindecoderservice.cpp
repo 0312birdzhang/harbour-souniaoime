@@ -227,8 +227,9 @@ QList<QString> PinyinDecoderService::predictionList(const QString &history, int 
     QList<QString> predictList;
     char16 (*predictItems)[kMaxPredictSize + 1] = 0;
     int predictNum = int(im_get_predicts(history.utf16(), predictItems));
-    predictList.reserve(predictNum);
-    for (int i = 0; i <= fetchSize; i++)
+    fetchSize = predictNum > fetchSize ? fetchSize : predictNum;
+    predictList.reserve(fetchSize);
+    for (int i = 0; i < fetchSize; i++)
         predictList.append(QString((QChar *)predictItems[i]));
     return predictList;
 }

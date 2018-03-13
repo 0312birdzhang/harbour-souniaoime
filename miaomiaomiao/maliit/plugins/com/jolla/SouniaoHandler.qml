@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import Nemo.Configuration 1.0
 import com.meego.maliitquick 1.0
 import com.jolla.keyboard 1.0
 import xyz.birdzhang.ime 1.0
@@ -18,6 +19,13 @@ InputHandler {
     //mod start
     property bool pinyinMode: MInputMethodQuick.contentType !== Maliit.UrlContentType && MInputMethodQuick.contentType !== Maliit.EmailContentType
     property int cursorIndex: MInputMethodQuick.cursorPosition
+
+    ConfigurationGroup{
+        id: config
+        path: "/app/xyz.birdzhang.ime"
+        property int pageSize: 20
+        property int fetchSize: 15
+    }
 
     onPinyinModeChanged: {
         handler.composingEnabled = handler.pinyinMode
@@ -60,13 +68,14 @@ InputHandler {
         property var olderSql
         property bool hasMore:false
         property bool fetchMany:false
-        property int pageSize: 20 //TODO configroup
-        property int fetchSize: 15 //TODO configroup
+        property int pageSize: config.pageSize;
+        property int fetchSize: config.fetchSize;
         property int pred:0
 
         signal candidatesUpdated
 
         Component.onCompleted:{
+            console.log("pageSize:"+config.pageSize)
             gpy.init();
             gpy.setUserDictionary(true);
         }
@@ -763,6 +772,9 @@ InputHandler {
 
         for (var i = 0; i < tmppredictionsList.length; i++) {
             gpy.candidates.append({text: tmppredictionsList[i], type: "full", segment: 0, candidate: i})
+        }
+        if(tmppredictionsList.length > 0){
+            gpy.candidates.append({text: " ", type: "full", segment: 0, candidate: tmppredictionsList.length});
         }
         gpy.hasMore = false;
         gpy.candidatesUpdated();

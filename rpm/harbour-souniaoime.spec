@@ -5,8 +5,8 @@ Name:       harbour-souniaoime
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 
-Version:    0.2
-Release:    2
+Version:    0.3.0
+Release:    1
 Summary:    PinyinIme for Sailfish OS
 License:    LGPLv2
 Group:      Qt/Qt
