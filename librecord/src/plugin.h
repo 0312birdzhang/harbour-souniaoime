@@ -3,13 +3,13 @@
 
 #include <QQmlExtensionPlugin>
 
-class QmlPinyinPlugin : public QQmlExtensionPlugin
+class RecorderPlugin : public QQmlExtensionPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QQmlExtensionInterface")
 
 public:
-    void registerTypes(const char *uri = "xyz.birdzhang.ime.pinyin");
+    void registerTypes(const char *uri = "xyz.birdzhang.ime.stt");
 };
 
 

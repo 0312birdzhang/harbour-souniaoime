@@ -1,2 +1,2 @@
-module xyz.birdzhang.ime
+module xyz.birdzhang.ime.pinyin
 plugin QmlPinyin

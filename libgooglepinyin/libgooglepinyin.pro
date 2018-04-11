@@ -7,7 +7,7 @@ CONFIG += qt plugin c++11
 
 TARGET = $$qtLibraryTarget($$TARGET)
 
-uri = xyz.birdzhang.ime
+uri = xyz.birdzhang.ime.pinyin
 
 OTHER_FILES +=\
     data/rawdict_utf16_65105_freq.txt \

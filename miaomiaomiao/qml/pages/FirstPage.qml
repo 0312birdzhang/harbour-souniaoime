@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Nemo.Configuration 1.0
+import xyz.birdzhang.ime.stt 1.0
 
 Page{
     ConfigurationGroup{
@@ -97,13 +98,13 @@ Page{
                 }
             }
 
-            Image{
-                source: "./notexist.jpg"
-                width: parent.width - Theme.paddingLarge
-                height: width
-                anchors.horizontalCenter: parent.horizontalCenter
-                fillMode: Image.PreserveAspectFit
-            }
+//            Image{
+//                source: "./notexist.jpg"
+//                width: parent.width - Theme.paddingLarge
+//                height: width
+//                anchors.horizontalCenter: parent.horizontalCenter
+//                fillMode: Image.PreserveAspectFit
+//            }
         }
     }
 }

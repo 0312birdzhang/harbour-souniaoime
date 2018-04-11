@@ -2,8 +2,8 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     libgooglepinyin \
-    miaomiaomiao
-
+    miaomiaomiao \
+    librecord
 
 OTHER_FILES += rpm/harbour-souniaoime.spec \
                 rpm/harbour-souniaoime.changes
