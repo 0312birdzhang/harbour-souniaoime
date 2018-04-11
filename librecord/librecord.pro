@@ -2,7 +2,7 @@ TEMPLATE = lib
 TARGET = Recorder
 
 VERSION = 1.0.0
-QT += qml quick
+QT += qml quick multimedia
 CONFIG += qt plugin c++11
 
 TARGET = $$qtLibraryTarget($$TARGET)

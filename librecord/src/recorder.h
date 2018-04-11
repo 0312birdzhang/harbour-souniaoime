@@ -1,6 +1,7 @@
 #ifndef RECORDER_H
 #define RECORDER_H
 
+#include <QObject>
 #include <QtMultimedia/QAudioRecorder>
 #include <QSettings>
 #include <QSortFilterProxyModel>
@@ -27,7 +28,6 @@ public:
         FLAC
     };
     Q_ENUM(Codec)
-
     explicit Recorder(QObject* parent = 0);
 
     Q_INVOKABLE bool shouldMigrate() const;

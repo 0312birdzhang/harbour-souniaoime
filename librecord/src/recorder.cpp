@@ -33,6 +33,8 @@ Recorder::Recorder(QObject *parent) :
     }
 }
 
+
+
 QString Recorder::location() const
 {
     return settings.value(FILE_LOCATION, Recorder::defaultStoragePath).toString();
