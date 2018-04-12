@@ -1,15 +1,68 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Nemo.Configuration 1.0
+import Nemo.Notifications 1.0
 import xyz.birdzhang.ime.stt 1.0
 
 Page{
+
+
+    Timer {
+        id: migrateTimer
+        interval: 20000
+        running: fasle
+        repeat: false
+        onTriggered: {
+            if (recorder.state == Recorder.RecordingState) {
+                recorder.stop();
+                
+            }
+        }
+    }
+    Notification {
+        function show(message) {
+            replacesId = 0
+            previewBody = message
+            publish()
+        }
+
+        id: notification
+        expireTimeout: 3000
+    }
+
+    Connections {
+        target: recorder
+        onPathCreationFailed: notification.show(qsTr("Couldn't create file in \"%0\"".arg(recorder.location)))
+    }
+
+    Connections {
+        target: recorder
+        onError: {
+            switch (error) {
+            case Recorder.ResourceError:
+                notification.show(qsTr("Could not write to \"%0\"".arg(recorder.location)))
+                break
+            case Recorder.OutOfSpaceError:
+                notification.show(qsTr("No space left on the device"))
+                break
+            default:
+                break
+            }
+        }
+    }
+
     ConfigurationGroup{
         id: config
         path: "/app/xyz.birdzhang.ime"
         property int pageSize: 20
         property int fetchSize: 15
     }
+    
+    Recorder{
+        id: recorder
+
+    }
+
     SilicaFlickable{
         anchors.fill: parent
         contentHeight: column.height
@@ -98,13 +151,25 @@ Page{
                 }
             }
 
-//            Image{
-//                source: "./notexist.jpg"
-//                width: parent.width - Theme.paddingLarge
-//                height: width
-//                anchors.horizontalCenter: parent.horizontalCenter
-//                fillMode: Image.PreserveAspectFit
-//            }
+            Image{
+                source: "image://theme/"
+                MouseArea{
+                    anchors.fill: parent
+                    onPressedAndHold:{
+                        switch (recorder.state) {
+                        case Recorder.StoppedState:
+                            recorder.startRecording();
+
+                            break
+                        case Recorder.PausedState:
+                            recorder.record()
+                            break
+                        default:
+                            break
+                        }
+                    }
+                }
+            }
         }
     }
 }
