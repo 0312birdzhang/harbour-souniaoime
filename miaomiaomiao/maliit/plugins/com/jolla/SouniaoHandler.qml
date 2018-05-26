@@ -31,7 +31,7 @@ InputHandler {
         handler.composingEnabled = handler.pinyinMode
         keyboard.layout.pinyinMode = handler.pinyinMode
         if (handler.preedit != "") {
-            commit(handler.preedit)
+//            commit(handler.preedit)
         }
         reset()
     }
@@ -142,7 +142,7 @@ InputHandler {
                     var tmpSubPy = tmpPy.slice(parseInt(pySqlStart[fixLen+1]), tmpPy.length)
 
                     MInputMethodQuick.sendCommit(item.text)
-                    MInputMethodQuick.sendPreedit( tmpSubPy )
+//                    MInputMethodQuick.sendPreedit( tmpSubPy )
                     preedit = tmpSubPy
 
                     if(hasMore && fetchMany){
@@ -744,9 +744,8 @@ InputHandler {
 
     function selectPhrase(phrase, index) {
         console.log("phrase clicked: " + phrase)
-        // MInputMethodQuick.sendCommit(phrase)
         gpy.acceptPhrase(index);
-        preedit = "";
+        handler.preedit = "";
         if (preedit.length > 0 ) {
             MInputMethodQuick.sendPreedit(preedit)
         }
@@ -784,12 +783,16 @@ InputHandler {
         return "\'-".indexOf(character) >= 0
     }
     function applyPrediction(replacement, index) {
-//        console.log("candidate clicked: " + replacement + "\n")
+        handler.preedit = "";
+        if(pressedKey.text && pressedKey.text.length > 0){
+            console.log("=================================================")
+            pressedKey.text = "";
+        }
+
         replacement = replacement + " "
         candidateSpaceIndex = MInputMethodQuick.surroundingTextValid
                 ? MInputMethodQuick.cursorPosition + replacement.length : -1
-        commit(replacement)
-        // thread.acceptPrediction(index)
+        commit(replacement);
     }
 
     function selectPhraseAndShrink(phrase, index) {
@@ -819,6 +822,7 @@ InputHandler {
     }
 
     function commit(text) {
+        handler.preedit = "";
         MInputMethodQuick.sendCommit(text)
         reset()
     }

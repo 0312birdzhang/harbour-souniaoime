@@ -22,7 +22,7 @@ Page{
 
             SectionHeader{
                 text: "说明"
-                font.pixelSize: Theme.fontSizeExtraSmall
+                font.pixelSize: Theme.fontSizeMedium
             }
             Label{
                 text: "本程序大量参考木木大大的山寨谷歌输入法跟gexc大大的拼音输入法，后端采用谷歌拼音输入法代码，做到了既可以使用gexc大大的输入法键盘，又"+
@@ -31,7 +31,7 @@ Page{
                        +"<br/><br/>本程序只是测试一下开源的谷歌拼音输入法，并无其他意图，在旗鱼上更智能的输入法是不存在的~😂"
                        +"<br/><br/>A pinyin input method for simple chinese user."
                 wrapMode: Text.RichText
-                font.pixelSize: Theme.fontSizeTiny
+                font.pixelSize: Theme.fontSizeSmall
                 color: Theme.primaryColor
                 width: parent.width
                 anchors{
@@ -45,29 +45,23 @@ Page{
 
             SectionHeader{
                 text: "作者"
-                font.pixelSize: Theme.fontSizeExtraSmall
+                font.pixelSize: Theme.fontSizeMedium
             }
 
             Label{
                 text: "旗鱼俱乐部 @0312birdzhang 出品"
                 wrapMode: Text.WordWrap
                 textFormat: Text.RichText
-                font.pixelSize: Theme.fontSizeTiny
+                font.pixelSize: Theme.fontSizeSmall
                 color: Theme.primaryColor
                 width: parent.width - Theme.paddingLarge
                 horizontalAlignment: Text.AlignRight
             }
-
-            SectionHeader{
-                text: "图标"
-                font.pixelSize: Theme.fontSizeExtraSmall
-            }
-
             Label{
-                text: "蝉曦 出品"
+                text: "图标由蝉曦出品"
                 wrapMode: Text.WordWrap
                 textFormat: Text.RichText
-                font.pixelSize: Theme.fontSizeTiny
+                font.pixelSize: Theme.fontSizeSmall
                 color: Theme.primaryColor
                 width: parent.width - Theme.paddingLarge
                 horizontalAlignment: Text.AlignRight
@@ -80,11 +74,12 @@ Page{
 
             SectionHeader{
                 text: "自定义设置"
+                font.pixelSize: Theme.fontSizeMedium
             }
 
             SectionHeader{
                 text: "联想词数量"
-                font.pixelSize: Theme.fontSizeExtraSmall
+                font.pixelSize: Theme.fontSizeMedium * 0.8
             }
             Slider {
                 minimumValue: 5
@@ -100,7 +95,7 @@ Page{
 
             SectionHeader{
                 text: "候选词数量"
-                font.pixelSize: Theme.fontSizeExtraSmall
+                font.pixelSize: Theme.fontSizeMedium * 0.8
             }
 
             Slider {

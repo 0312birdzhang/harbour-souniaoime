@@ -9,9 +9,9 @@ TARGET = $$qtLibraryTarget($$TARGET)
 
 uri = xyz.birdzhang.ime
 
-OTHER_FILES +=\
-    data/rawdict_utf16_65105_freq.txt \
-    data/valid_utf16.txt
+#OTHER_FILES +=\
+#    data/rawdict_utf16_65105_freq.txt \
+#    data/valid_utf16.txt
 	
 CONFIG *= thread	
 
