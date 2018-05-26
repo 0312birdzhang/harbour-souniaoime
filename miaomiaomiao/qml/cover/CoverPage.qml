@@ -36,7 +36,7 @@ CoverBackground {
         icon.source: "image://theme/harbour-souniaoime"
         icon.width: parent.width/2.5
         icon.height: icon.width
-        text: "🐦🐦🐦"
+        text: "SouBirdIME"
     }
 }
 

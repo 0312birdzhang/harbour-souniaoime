@@ -3,6 +3,6 @@ Type=Application
 X-Nemo-Application-Type=silica-qt5
 Icon=harbour-souniaoime
 Exec=harbour-souniaoime
-Name=SouniaoIME
+Name=SouBirdIME
 Name[cn]=搜鸟输入法
 

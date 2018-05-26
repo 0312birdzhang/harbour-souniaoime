@@ -22,12 +22,14 @@ Page{
 
             SectionHeader{
                 text: "说明"
+                font.pixelSize: Theme.fontSizeExtraSmall
             }
             Label{
                 text: "本程序大量参考木木大大的山寨谷歌输入法跟gexc大大的拼音输入法，后端采用谷歌拼音输入法代码，做到了既可以使用gexc大大的输入法键盘，又"+
                       "有木木大大输入法的词汇，并且无Xt9依赖可以安装在移植的机型上，特此声明。<br/>"
-                       +"使用方式：到【设置】-【文本输入】中勾选【搜鸟输入法】，然后在输入的界面切换到本输入法即可，不需要重启。"
-                       +"<br/>本程序只是测试一下开源的谷歌拼音输入法，并无其他意图，在旗鱼上更智能的输入法是不存在的~😂"
+                       +"<br/>使用方式：到【设置】-【文本输入】中勾选【搜鸟输入法】，然后在输入的界面切换到本输入法即可，不需要重启。"
+                       +"<br/><br/>本程序只是测试一下开源的谷歌拼音输入法，并无其他意图，在旗鱼上更智能的输入法是不存在的~😂"
+                       +"<br/><br/>A pinyin input method for simple chinese user."
                 wrapMode: Text.RichText
                 font.pixelSize: Theme.fontSizeTiny
                 color: Theme.primaryColor
@@ -43,6 +45,7 @@ Page{
 
             SectionHeader{
                 text: "作者"
+                font.pixelSize: Theme.fontSizeExtraSmall
             }
 
             Label{
@@ -50,18 +53,33 @@ Page{
                 wrapMode: Text.WordWrap
                 textFormat: Text.RichText
                 font.pixelSize: Theme.fontSizeTiny
-                color: Theme.highlightColor
+                color: Theme.primaryColor
+                width: parent.width - Theme.paddingLarge
+                horizontalAlignment: Text.AlignRight
+            }
+
+            SectionHeader{
+                text: "图标"
+                font.pixelSize: Theme.fontSizeExtraSmall
+            }
+
+            Label{
+                text: "蝉曦 出品"
+                wrapMode: Text.WordWrap
+                textFormat: Text.RichText
+                font.pixelSize: Theme.fontSizeTiny
+                color: Theme.primaryColor
                 width: parent.width - Theme.paddingLarge
                 horizontalAlignment: Text.AlignRight
             }
 
             Item {
                 width: parent.width
-                height: Theme.paddingSmall
+                height: Theme.paddingMedium
             }
 
             SectionHeader{
-                text: "自定义"
+                text: "自定义设置"
             }
 
             SectionHeader{
@@ -95,14 +113,6 @@ Page{
                 onValueChanged: {
                     config.pageSize = value;
                 }
-            }
-
-            Image{
-                source: "./notexist.jpg"
-                width: parent.width - Theme.paddingLarge
-                height: width
-                anchors.horizontalCenter: parent.horizontalCenter
-                fillMode: Image.PreserveAspectFit
             }
         }
     }

@@ -5,7 +5,7 @@ Name:       harbour-souniaoime
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 
-Version:    0.3.0
+Version:    0.3.1
 Release:    1
 Summary:    PinyinIme for Sailfish OS
 License:    LGPLv2
@@ -21,7 +21,7 @@ BuildRequires:  desktop-file-utils
 
 
 %description
-Allows you to use google pinyin to enter simple Chinese character on Sailfish OS.
+Allows you to use google pinyin to enter Simple Chinese character on Sailfish OS.
 
 
 %prep
