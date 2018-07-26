@@ -25,11 +25,11 @@ Page{
                 font.pixelSize: Theme.fontSizeMedium
             }
             Label{
-                text: "本程序大量参考木木大大的山寨谷歌输入法跟gexc大大的拼音输入法，后端采用谷歌拼音输入法代码，做到了既可以使用gexc大大的输入法键盘，又"+
+                text: "本程序大量参考木木大大的【山寨谷歌输入法】跟gexc大大的【拼音键盘】，后端采用谷歌拼音输入法代码，做到了既可以使用gexc大大的输入法键盘，又"+
                       "有木木大大输入法的词汇，并且无Xt9依赖可以安装在移植的机型上，特此声明。<br/>"
                        +"<br/>使用方式：到【设置】-【文本输入】中勾选【搜鸟输入法】，然后在输入的界面切换到本输入法即可，不需要重启。"
-                       +"<br/><br/>本程序只是测试一下开源的谷歌拼音输入法，并无其他意图，在旗鱼上更智能的输入法是不存在的~😂"
-                       +"<br/><br/>A pinyin input method for simple chinese user."
+                       +"<br/><br/>本程序只是测试一下开源的谷歌拼音输入法，最终还是希望官方能够做到更好的中文输入😂"
+                       +"<br/><br/>This is a pinyin input method for simple chinese user."
                 wrapMode: Text.RichText
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.primaryColor

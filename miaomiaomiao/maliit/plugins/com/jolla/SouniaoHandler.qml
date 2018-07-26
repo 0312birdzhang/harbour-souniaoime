@@ -31,13 +31,13 @@ InputHandler {
         handler.composingEnabled = handler.pinyinMode
         keyboard.layout.pinyinMode = handler.pinyinMode
         if (handler.preedit != "") {
-//            commit(handler.preedit)
+            //commit(handler.preedit)
         }
         reset()
     }
 
     onCursorIndexChanged: {
-        if(pinyinMode){
+        if(pinyinMode && preedit == "" ){
             getPredictions(false);
         }
     }
@@ -135,29 +135,34 @@ InputHandler {
                 flag = false
             }
             if (item.text != ""){
-
+                // 没有全部选择
                 if(!flag){
                     var tmpPy = gpy.pinyinString(false)
 
                     var tmpSubPy = tmpPy.slice(parseInt(pySqlStart[fixLen+1]), tmpPy.length)
 
-                    MInputMethodQuick.sendCommit(item.text)
-//                    MInputMethodQuick.sendPreedit( tmpSubPy )
-                    preedit = tmpSubPy
+		    if(tmpPy == tmpSubPy){
+                      	MInputMethodQuick.sendCommit(item.text) 
+			    handler.preedit = "" 
+			    return;
+                    }
+			console.log("tmpSubpy:",tmpSubPy)
+			console.log("tmppy:",tmpPy)
+			handler.preedit = ""
+                    commit_partial(item.text, tmpSubPy)
+			
+//                    preedit = tmpSubPy
 
                     if(hasMore && fetchMany){
-
                         hasMore = false
                         fetchMany = false
-                        //moreCandidates.clean()
+                        moreCandidates.clear()
                     }
                     candidates.clear()
 
 
-                    if(pred > pageSize)
-                    {
+                    if(pred > pageSize){
                         hasMore = true
-
                     }else{
                         hasMore = false
                     }
@@ -172,6 +177,8 @@ InputHandler {
                     commit(item.text)
                 }
 
+            }else{
+                console.log("+++++++++",handler.preedit)
             }
         }
     }
@@ -458,17 +465,23 @@ InputHandler {
 
                 footer: Item {
                     width:  verticalList.width
-                    height: geometry.keyHeightLandscape / 2
-                    visible: gpy.hasMore
+                    height: gpy.hasMore? geometry.keyHeightLandscape : geometry.keyHeightLandscape / 2
+
+                    Item{
+                        width: geometry.keyHeightLandscape / 2
+                        height: geometry.keyHeightLandscape / 2
+                    }
 
                     Image {
                         id: moreIcon
+                        visible: gpy.hasMore
                         source: "image://theme/icon-lock-more"
                         anchors.horizontalCenter: parent.horizontalCenter
                         anchors.verticalCenter: parent.bottom
                         anchors.verticalCenterOffset: -Theme.paddingSmall
                     }
                     Image {
+                        visible: gpy.hasMore
                         source: "image://theme/icon-lock-more?" + Theme.highlightColor
                         anchors.centerIn: moreIcon
                         opacity: verticalList.dragging && verticalList.atYEnd ? 1.0 : 0.0
@@ -743,12 +756,7 @@ InputHandler {
     }
 
     function selectPhrase(phrase, index) {
-        console.log("phrase clicked: " + phrase)
         gpy.acceptPhrase(index);
-        handler.preedit = "";
-        if (preedit.length > 0 ) {
-            MInputMethodQuick.sendPreedit(preedit)
-        }
     }
 
 
