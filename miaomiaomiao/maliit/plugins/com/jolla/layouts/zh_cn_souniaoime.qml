@@ -172,7 +172,7 @@ KeyboardLayout {
     KeyboardRow {
         splitIndex: 4
         SymbolKey {
-            caption: keyboard.inSymView ? "拼音" : "符号" // symbols/pinyin
+            caption: keyboard.inSymView ? ( pinyinLayout.pinyinMode ? "拼音" : "Eng") : "符号" // symbols/pinyin
             //implicitWidth: functionKeyWidth * 0.75
         }
         /*FunctionKey {

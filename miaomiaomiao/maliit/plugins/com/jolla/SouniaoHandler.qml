@@ -141,18 +141,13 @@ InputHandler {
 
                     var tmpSubPy = tmpPy.slice(parseInt(pySqlStart[fixLen+1]), tmpPy.length)
 
-		    if(tmpPy == tmpSubPy){
+		            if(tmpPy == tmpSubPy){
                       	MInputMethodQuick.sendCommit(item.text) 
-			    handler.preedit = "" 
-			    return;
+                        handler.preedit = "" 
+                        return;
                     }
-			console.log("tmpSubpy:",tmpSubPy)
-			console.log("tmppy:",tmpPy)
-			handler.preedit = ""
+        			handler.preedit = ""
                     commit_partial(item.text, tmpSubPy)
-			
-//                    preedit = tmpSubPy
-
                     if(hasMore && fetchMany){
                         hasMore = false
                         fetchMany = false
@@ -253,9 +248,11 @@ InputHandler {
                             text: model.text
                         }
                     }
-                    onCountChanged: positionViewAtBeginning()
+                    onCountChanged: {
+                        positionViewAtBeginning();
+                    }
                     onDraggingChanged: {
-
+                        hideSwitchLabel.start();
                         if (!dragging) {
                             if (!keyboard.expandedPaste && contentX < -(headerItem.width + Theme.paddingLarge)) {
                                 keyboard.expandedPaste = true
@@ -292,6 +289,24 @@ InputHandler {
                         id: positionerTimer
                         interval: 10
                         onTriggered: listView.positionViewAtBeginning()
+                    }
+
+                    Timer {
+                        id: hideSwitchLabel
+                        interval: 10
+                        onTriggered: {
+                            switchLabel.visible = false;
+                            showSwitchLabel.start()
+                        }
+                    }
+                    Timer {
+                        id: showSwitchLabel
+                        interval: 3000
+                        onTriggered: {
+                            if(!hideSwitchLabel.running){
+                                switchLabel.visible = true;
+                            }
+                        }
                     }
                 }
                 Label {
@@ -441,6 +456,8 @@ InputHandler {
         Item {
             id: verticalContainer
 
+            property int inactivePadding: Theme.paddingMedium
+
             SilicaListView {
                 id: verticalList
 
@@ -465,23 +482,17 @@ InputHandler {
 
                 footer: Item {
                     width:  verticalList.width
-                    height: gpy.hasMore? geometry.keyHeightLandscape : geometry.keyHeightLandscape / 2
-
-                    Item{
-                        width: geometry.keyHeightLandscape / 2
-                        height: geometry.keyHeightLandscape / 2
-                    }
+                    height: geometry.keyHeightLandscape / 2
+                    visible: handler.hasMore
 
                     Image {
                         id: moreIcon
-                        visible: gpy.hasMore
                         source: "image://theme/icon-lock-more"
                         anchors.horizontalCenter: parent.horizontalCenter
                         anchors.verticalCenter: parent.bottom
                         anchors.verticalCenterOffset: -Theme.paddingSmall
                     }
                     Image {
-                        visible: gpy.hasMore
                         source: "image://theme/icon-lock-more?" + Theme.highlightColor
                         anchors.centerIn: moreIcon
                         opacity: verticalList.dragging && verticalList.atYEnd ? 1.0 : 0.0
@@ -492,18 +503,23 @@ InputHandler {
 
 
                 delegate: BackgroundItem {
+                    id: background
                     onClicked: pinyinMode ? selectPhrase(model.text, model.index) : applyPrediction(model.text, model.index) //accept(model.index)
                     width: parent.width
-                    height: geometry.keyHeightLandscape // assuming landscape!
+                    // height: geometry.keyHeightLandscape // assuming landscape!
+                    height: geometry.keyHeightLandscape * candidateText.lineCount
 
                     Text {
-                        width: parent.width
+                        id: candidateText
+                        width: background.width
                         horizontalAlignment: Text.AlignHCenter
                         anchors.verticalCenter: parent.verticalCenter
-                        color: index === 0 ? Theme.highlightColor : Theme.primaryColor
-                        font.pixelSize: Theme.fontSizeSmall
-                        fontSizeMode: Text.HorizontalFit
-                        //                        textFormat: Text.StyledText
+                        // color: index === 0 ? Theme.highlightColor : Theme.primaryColor
+                        // font.pixelSize: Theme.fontSizeSmall
+                        // fontSizeMode: Text.HorizontalFit
+                        color: (background.down || (index === 0 && preedit.length > 0))
+                               ? Theme.highlightColor : Theme.primaryColor
+                        font { pixelSize: Theme.fontSizeSmall; family: Theme.fontFamily }
                         text: model.text
                         wrapMode: Text.Wrap
                         maximumLineCount: 2
@@ -793,7 +809,6 @@ InputHandler {
     function applyPrediction(replacement, index) {
         handler.preedit = "";
         if(pressedKey.text && pressedKey.text.length > 0){
-            console.log("=================================================")
             pressedKey.text = "";
         }
 
