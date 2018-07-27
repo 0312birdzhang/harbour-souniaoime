@@ -210,7 +210,7 @@ InputHandler {
                     id: listView
                     model: gpy.candidates
                     orientation: ListView.Horizontal
-                    width: parent.width
+                    width: parent.width - switchLabel.width * 1.5
                     height: parent.height
                     boundsBehavior: ((!keyboard.expandedPaste && Clipboard.hasText) || gpy.hasMore) ? Flickable.DragOverBounds : Flickable.StopAtBounds
                     header: pasteComponent
@@ -252,7 +252,6 @@ InputHandler {
                         positionViewAtBeginning();
                     }
                     onDraggingChanged: {
-                        hideSwitchLabel.start();
                         if (!dragging) {
                             if (!keyboard.expandedPaste && contentX < -(headerItem.width + Theme.paddingLarge)) {
                                 keyboard.expandedPaste = true
@@ -291,23 +290,6 @@ InputHandler {
                         onTriggered: listView.positionViewAtBeginning()
                     }
 
-                    Timer {
-                        id: hideSwitchLabel
-                        interval: 10
-                        onTriggered: {
-                            switchLabel.visible = false;
-                            showSwitchLabel.start()
-                        }
-                    }
-                    Timer {
-                        id: showSwitchLabel
-                        interval: 3000
-                        onTriggered: {
-                            if(!hideSwitchLabel.running){
-                                switchLabel.visible = true;
-                            }
-                        }
-                    }
                 }
                 Label {
                     id: switchLabel
@@ -357,6 +339,7 @@ InputHandler {
     Component {
         id: pasteComponent
         PasteButton {
+            visible: Clipboard.text
             onClicked: {
                 if (preedit.length > 0) {
                     commit(preedit)
