@@ -3,6 +3,8 @@
 ** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
+** Copyright (C) 2018-2019 BirdZhang
+**
 ** This file is part of the Qt Virtual Keyboard module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:GPL$
