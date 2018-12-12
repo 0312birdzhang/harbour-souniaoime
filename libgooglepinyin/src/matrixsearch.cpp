@@ -23,6 +23,7 @@
 #include "mystdlib.h"
 #include "ngram.h"
 #include "userdict.h"
+#include <QDebug>
 
 namespace ime_pinyin {
 
@@ -135,6 +136,7 @@ bool MatrixSearch::init(const char *fn_sys_dict, const char *fn_usr_dict) {
   if (!user_dict_->load_dict(fn_usr_dict, kUserDictIdStart, kUserDictIdEnd)) {
     delete user_dict_;
     user_dict_ = NULL;
+    qDebug() << "user dict open error, init";
   } else{
     user_dict_->set_total_lemma_count_of_others(NGram::kSysDictTotalFreq);
   }
@@ -159,6 +161,7 @@ bool MatrixSearch::init_fd(int sys_fd, long start_offset, long length,
   if (!user_dict_->load_dict(fn_usr_dict, kUserDictIdStart, kUserDictIdEnd)) {
     delete user_dict_;
     user_dict_ = NULL;
+    qDebug() << "user dict open error, init_fd";
   } else {
     user_dict_->set_total_lemma_count_of_others(NGram::kSysDictTotalFreq);
   }
@@ -182,6 +185,7 @@ void MatrixSearch::init_user_dictionary(const char *fn_usr_dict) {
     if (!user_dict_->load_dict(fn_usr_dict, kUserDictIdStart, kUserDictIdEnd)) {
       delete user_dict_;
       user_dict_ = NULL;
+      qDebug() << "user dict open error, init_user_dictionary";
     }
   }
 
