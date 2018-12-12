@@ -109,9 +109,10 @@ void MatrixSearch::free_resource() {
   if (NULL != dict_trie_)
     delete dict_trie_;
 
-  if (NULL != user_dict_)
+  if (NULL != user_dict_){
     delete user_dict_;
-
+    qDebug() << "user dict open error, free_resource";
+  }
   if (NULL != spl_parser_)
     delete spl_parser_;
 
@@ -178,6 +179,7 @@ void MatrixSearch::init_user_dictionary(const char *fn_usr_dict) {
   if (NULL != user_dict_) {
     delete user_dict_;
     user_dict_ = NULL;
+    qDebug() << "user dict open error, init_user_dictionary";
   }
 
   if (NULL != fn_usr_dict) {
