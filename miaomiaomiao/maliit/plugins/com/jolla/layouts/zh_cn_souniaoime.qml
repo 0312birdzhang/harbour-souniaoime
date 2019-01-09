@@ -37,7 +37,7 @@ KeyboardLayout {
     id: pinyinLayout
     type: "china_pinyin"
     inputMode: "simplified"
-    splitSupported: false
+    splitSupported: true
     property bool pinyinMode: MInputMethodQuick.contentType !== Maliit.UrlContentType && MInputMethodQuick.contentType !== Maliit.EmailContentType
 
     KeyboardRow {

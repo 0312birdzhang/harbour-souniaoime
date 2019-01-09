@@ -77,7 +77,7 @@ InputHandler {
         Component.onCompleted:{
             console.log("pageSize:"+config.pageSize)
             gpy.init();
-            gpy.setUserDictionary(true);
+            gpy.setUserDictionary(false);
         }
 
         function getMoreCandidates(){
