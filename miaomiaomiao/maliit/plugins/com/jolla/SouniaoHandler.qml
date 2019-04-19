@@ -4,6 +4,7 @@ import Nemo.Configuration 1.0
 import com.meego.maliitquick 1.0
 import com.jolla.keyboard 1.0
 import xyz.birdzhang.ime 1.0
+import net.toxip.openccqml 1.0
 
 InputHandler {
     id: handler
@@ -25,6 +26,7 @@ InputHandler {
         path: "/app/xyz.birdzhang.ime"
         property int pageSize: 20
         property int fetchSize: 15
+        property bool traditional: false
     }
 
     onPinyinModeChanged: {
@@ -59,6 +61,11 @@ InputHandler {
         }
     }
 
+    OpenCC{
+        id: opencc
+        // convert(QString)
+        // Converts simplified Chinese into Taiwanese traditional standard.
+    }
 
     QmlPinyin{
         id :gpy
@@ -83,7 +90,12 @@ InputHandler {
         function getMoreCandidates(){
             moreCandidates.clear();
             for (var i = pageSize; i < pred ; i++) {
-                moreCandidates.append({text: gpy.candidateAt(i), type: "partial", segment: 0, candidate: i})
+                moreCandidates.append({
+                    text: config.traditional? opencc.convert(gpy.candidateAt(i)) :gpy.candidateAt(i), 
+                    type: "partial", 
+                    segment: 0, 
+                    candidate: i
+                    })
             }
             fetchMany = true
         }
@@ -104,7 +116,13 @@ InputHandler {
                 hasMore = false
             }
             for (var i = 0; i < pred && i < pageSize; i++) {
-                candidates.append({text: gpy.candidateAt(i), type: "full", segment: 0, candidate: i})
+                candidates.append({
+                    // text: gpy.candidateAt(i), 
+                    text: config.traditional? opencc.convert(gpy.candidateAt(i)) :gpy.candidateAt(i), 
+                    type: "full", 
+                    segment: 0, 
+                    candidate: i
+                    })
             }
             candidatesUpdated()
         }
@@ -764,6 +782,7 @@ InputHandler {
         commit(preedit)
         gpy.candidates.clear();
         var tmppredictionsList = [];
+        // if config.traditional, need convert t2s
         if(!isDelete){
             tmppredictionsList = gpy.predictionList(
                     MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-1,
@@ -775,9 +794,14 @@ InputHandler {
                                                                                                MInputMethodQuick.cursorPosition-1),
                                                    gpy.fetchSize):[]
         }
-
+        // end
         for (var i = 0; i < tmppredictionsList.length; i++) {
-            gpy.candidates.append({text: tmppredictionsList[i], type: "full", segment: 0, candidate: i})
+            gpy.candidates.append({
+                text: config.traditional? opencc.convert(tmppredictionsList[i]): tmppredictionsList[i], 
+                type: "full", 
+                segment: 0, 
+                candidate: i
+                })
         }
         if(tmppredictionsList.length > 0){
             gpy.candidates.append({text: " ", type: "full", segment: 0, candidate: tmppredictionsList.length});

@@ -8,6 +8,7 @@ Page{
         path: "/app/xyz.birdzhang.ime"
         property int pageSize: 20
         property int fetchSize: 15
+        property bool traditional: false
     }
     SilicaFlickable{
         anchors.fill: parent
@@ -75,6 +76,20 @@ Page{
             SectionHeader{
                 text: "自定义设置"
                 font.pixelSize: Theme.fontSizeMedium
+            }
+
+            SectionHeader{
+                text: "简繁设置"
+                font.pixelSize: Theme.fontSizeMedium * 0.8
+            }
+
+            TextSwitch {
+                checked: config.traditional
+                text: checked ? '繁体':'简体'
+                description: "选中后输入的文字将用OpenCC转换为繁体"
+                onClicked: {
+                    config.traditional = !config.traditional
+                }
             }
 
             SectionHeader{

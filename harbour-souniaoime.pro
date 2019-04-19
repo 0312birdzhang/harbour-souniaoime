@@ -2,6 +2,7 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     libgooglepinyin \
+    opencc-qml-plugin \
     miaomiaomiao
 
 

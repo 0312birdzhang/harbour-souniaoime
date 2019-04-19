@@ -13,11 +13,13 @@ Group:      Qt/Qt
 Source:     %{name}-%{version}.tar.gz
 URL:        https://github.com/0312birdzhang/harbour-soumaoime
 Requires:   jolla-keyboard
+Requires:   opencc
 BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  desktop-file-utils
+BuildRequires:	opencc
 
 
 %description
@@ -69,4 +71,5 @@ rm -rf %{buildroot}
 %{_datadir}/icons/
 %{_datadir}/applications/%{name}.desktop
 %{_libdir}/qt5/qml/xyz/birdzhang/ime
+%{_libdir}/qt5/qml/net/toxip/openccqml
 %attr(0755, nemo, nemo) /home/nemo/.cache/%{name}
