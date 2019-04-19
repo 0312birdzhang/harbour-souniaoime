@@ -786,15 +786,15 @@ InputHandler {
         if(!isDelete){
             var preText = MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-1,
                                                                     MInputMethodQuick.cursorPosition);
-            var preText_s = opencc.convert2s(preText);
-            tmppredictionsList = gpy.predictionList(preText_s,
+            if(config.traditional)preText = opencc.convert2s(preText);
+            tmppredictionsList = gpy.predictionList(preText,
                         gpy.fetchSize);
         }else{
             var preDelText = MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-2,
                                                                                                MInputMethodQuick.cursorPosition-1);
-            var preDelText_s =  opencc.convert2s(preDelText);                                                                                          
+            if(config.traditional)preDelText =  opencc.convert2s(preDelText);                                                                                          
             tmppredictionsList = MInputMethodQuick.surroundingText.length > 2 ?
-                                gpy.predictionList(preDelText_s,
+                                gpy.predictionList(preDelText,
                                                    gpy.fetchSize):[]
         }
         // end
