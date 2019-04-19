@@ -321,7 +321,7 @@ InputHandler {
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     maximumLineCount: 1
-                    text: handler.pinyinMode ? "中" : "英"
+                    text: handler.pinyinMode ? ( config.traditional? "繁":"简" ): "英"
                     Rectangle {
                         id: switchButton
                         color: Theme.primaryColor
@@ -784,14 +784,17 @@ InputHandler {
         var tmppredictionsList = [];
         // if config.traditional, need convert t2s
         if(!isDelete){
-            tmppredictionsList = gpy.predictionList(
-                    MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-1,
-                                                                    MInputMethodQuick.cursorPosition),
+            var preText = MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-1,
+                                                                    MInputMethodQuick.cursorPosition);
+            var preText_s = opencc.convert2s(preText);
+            tmppredictionsList = gpy.predictionList(preText_s,
                         gpy.fetchSize);
         }else{
+            var preDelText = MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-2,
+                                                                                               MInputMethodQuick.cursorPosition-1);
+            var preDelText_s =  opencc.convert2s(preDelText);                                                                                          
             tmppredictionsList = MInputMethodQuick.surroundingText.length > 2 ?
-                                gpy.predictionList(MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-2,
-                                                                                               MInputMethodQuick.cursorPosition-1),
+                                gpy.predictionList(preDelText_s,
                                                    gpy.fetchSize):[]
         }
         // end
