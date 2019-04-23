@@ -27,6 +27,7 @@ InputHandler {
         property int pageSize: 20
         property int fetchSize: 15
         property bool traditional: false
+        property string convertModel: "s2twp"
     }
 
     onPinyinModeChanged: {
@@ -48,6 +49,8 @@ InputHandler {
         if (active) {
             if(pinyinMode){
                 getPredictions(false);
+                opencc.chooseMode(config.convertModel);
+                opencc2s.chooseMode(opencc2s.revert(config.convertModel));
             }
             keyboard.layout.pinyinMode = handler.pinyinMode
             keyboard.shiftKeyPressed = false
@@ -61,10 +64,23 @@ InputHandler {
         }
     }
 
+
+
+    OpenCC{
+        id: opencc2s
+        function revert(model){
+            model = model.replace("p","");
+            models = model.split("2");
+            return models[1]+"2"+ models[0];
+        }
+        
+    }
     OpenCC{
         id: opencc
-        // convert(QString)
-        // Converts simplified Chinese into Taiwanese traditional standard.
+        function convert2s(str){
+            if(!str)return "";
+            return opencc2s.convert(str);
+        }
     }
 
     QmlPinyin{
