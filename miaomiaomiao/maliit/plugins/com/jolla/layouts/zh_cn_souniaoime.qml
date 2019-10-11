@@ -109,7 +109,9 @@ KeyboardLayout {
     }
 
     KeyboardRow {
-        ShiftKey {}
+        ShiftKey {
+            enabled: !pinyinLayout.pinyinMode
+        }
 
         CharacterKey { caption: "z"; captionShifted: "Z"; symView: pinyinLayout.pinyinMode ? "／" : "/"; symView2: pinyinLayout.pinyinMode ? "？" : "?"}
         CharacterKey { caption: "x"; captionShifted: "X"; symView: pinyinLayout.pinyinMode ? "‘" : "€"; symView2: pinyinLayout.pinyinMode ? "“" : "£"}

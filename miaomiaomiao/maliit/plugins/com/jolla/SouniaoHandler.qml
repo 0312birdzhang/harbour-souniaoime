@@ -49,7 +49,8 @@ InputHandler {
             }
             keyboard.layout.pinyinMode = handler.pinyinMode
             keyboard.shiftKeyPressed = false
-            keyboard.cycleShift();
+            // keyboard.cycleShift();
+            keyboard.shiftState = ShiftState.NoShift;
             MInputMethodQuick.sendCommit("");
 
         } else if(!pinyinMode && preedit != ""){
@@ -77,7 +78,8 @@ InputHandler {
         Component.onCompleted:{
             console.log("pageSize:"+config.pageSize)
             gpy.init();
-            gpy.setUserDictionary(false);
+            gpy.setUserDictionary(true);
+            
         }
 
         function getMoreCandidates(){
