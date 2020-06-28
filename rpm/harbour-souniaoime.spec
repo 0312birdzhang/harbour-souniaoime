@@ -69,4 +69,5 @@ rm -rf %{buildroot}
 %{_datadir}/icons/
 %{_datadir}/applications/%{name}.desktop
 %{_libdir}/qt5/qml/xyz/birdzhang/ime
+%{_libdir}/qt5/qml/xyz/birdzhang/opencc
 %attr(0755, nemo, nemo) /home/nemo/.cache/%{name}
