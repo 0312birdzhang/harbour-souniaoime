@@ -91,3 +91,7 @@ SOURCES += \
     src/UTF8Util.cpp \
     src/opencc-qml-plugin_plugin.cpp \
     src/opencc_service.cpp
+
+OTHER_FILES += \
+    CMakeLists.txt \
+    src/CMakeLists.txt
