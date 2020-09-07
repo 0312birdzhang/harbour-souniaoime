@@ -17,7 +17,7 @@
  */
 
 #include "gtest/gtest.h"
-#include "Common.hpp"
+#include "../src/Common.hpp"
 
 namespace opencc {
 

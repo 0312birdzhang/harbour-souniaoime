@@ -3,11 +3,18 @@ import Sailfish.Silica 1.0
 import Nemo.Configuration 1.0
 
 Page{
+
+    ListModel{
+        id: convertModel
+    }
+
     ConfigurationGroup{
         id: config
         path: "/app/xyz.birdzhang.ime"
         property int pageSize: 20
         property int fetchSize: 15
+        property bool traditional: false
+        property string convertModel: "s2twp"
     }
     SilicaFlickable{
         anchors.fill: parent
@@ -66,6 +73,15 @@ Page{
                 width: parent.width - Theme.paddingLarge
                 horizontalAlignment: Text.AlignRight
             }
+            Label{
+                text: "简繁转换插件由topiasv支持"
+                wrapMode: Text.WordWrap
+                textFormat: Text.RichText
+                font.pixelSize: Theme.fontSizeSmall
+                color: Theme.primaryColor
+                width: parent.width - Theme.paddingLarge
+                horizontalAlignment: Text.AlignRight
+            }
 
             Item {
                 width: parent.width
@@ -77,6 +93,34 @@ Page{
                 font.pixelSize: Theme.fontSizeMedium
             }
 
+            SectionHeader{
+                text: "简繁设置"
+                font.pixelSize: Theme.fontSizeMedium * 0.8
+            }
+
+            TextSwitch {
+                checked: config.traditional
+                text: checked ? '繁体':'简体'
+                description: "选中后输入的文字将用OpenCC转换为繁体"
+                onClicked: {
+                    config.traditional = !config.traditional
+                }
+            }
+
+
+            ComboBox {
+                enabled: config.traditional
+                label: "选择简体到繁体模式"
+                menu: ContextMenu {
+                    Repeater {
+                        model: convertModel
+                        MenuItem {
+                            text: label
+                        }
+                    }
+                }
+
+            }
             SectionHeader{
                 text: "联想词数量"
                 font.pixelSize: Theme.fontSizeMedium * 0.8
@@ -109,6 +153,27 @@ Page{
                     config.pageSize = value;
                 }
             }
+        }
+    }
+
+    Component.onCompleted: {
+        var models = ([{
+                           val:"s2t",
+                           name:"简体到繁体"
+                       },{
+                           val:"s2tw",
+                           name:"简体到台湾正体"
+                       },{
+                           val:"s2hk",
+                           name:"简体到香港繁体"
+                       },{
+                           val:"s2twp",
+                           name:"简体到台湾正体(常用)"
+                       }]);
+        for ( var i in models   ){
+            convertModel.append({"label": models[i].name,
+                                    "value": models[i].val
+                                });
         }
     }
 }
