@@ -109,7 +109,9 @@ KeyboardLayout {
     }
 
     KeyboardRow {
-        ShiftKey {}
+        ShiftKey {
+            enabled: !pinyinLayout.pinyinMode
+        }
 
         CharacterKey { caption: "z"; captionShifted: "Z"; symView: pinyinLayout.pinyinMode ? "／" : "/"; symView2: pinyinLayout.pinyinMode ? "？" : "?"}
         CharacterKey { caption: "x"; captionShifted: "X"; symView: pinyinLayout.pinyinMode ? "‘" : "€"; symView2: pinyinLayout.pinyinMode ? "“" : "£"}
@@ -172,7 +174,7 @@ KeyboardLayout {
     KeyboardRow {
         splitIndex: 4
         SymbolKey {
-            caption: keyboard.inSymView ? ( pinyinLayout.pinyinMode ? "拼音" : "Eng") : "符号" // symbols/pinyin
+            caption: keyboard.inSymView ? ( pinyinLayout.pinyinMode ? "拼音" : "En") : "符号" // symbols/pinyin
             //implicitWidth: functionKeyWidth * 0.75
         }
         /*FunctionKey {

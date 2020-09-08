@@ -2,9 +2,8 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     libgooglepinyin \
-    opencc-qml-plugin \
+    libopencc \
     miaomiaomiao
-
 
 OTHER_FILES += rpm/harbour-souniaoime.spec \
                 rpm/harbour-souniaoime.changes

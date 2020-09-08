@@ -4,7 +4,6 @@ import Nemo.Configuration 1.0
 
 Page{
 
-
     ListModel{
         id: convertModel
     }
@@ -74,6 +73,15 @@ Page{
                 width: parent.width - Theme.paddingLarge
                 horizontalAlignment: Text.AlignRight
             }
+            Label{
+                text: "简繁转换插件由topiasv支持"
+                wrapMode: Text.WordWrap
+                textFormat: Text.RichText
+                font.pixelSize: Theme.fontSizeSmall
+                color: Theme.primaryColor
+                width: parent.width - Theme.paddingLarge
+                horizontalAlignment: Text.AlignRight
+            }
 
             Item {
                 width: parent.width
@@ -113,7 +121,6 @@ Page{
                 }
 
             }
-
             SectionHeader{
                 text: "联想词数量"
                 font.pixelSize: Theme.fontSizeMedium * 0.8

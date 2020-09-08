@@ -5,7 +5,11 @@ Name:       harbour-souniaoime
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 
+<<<<<<< HEAD
 Version:    0.3.7
+=======
+Version:    0.3.8
+>>>>>>> master
 Release:    1
 Summary:    PinyinIme for Sailfish OS
 License:    LGPLv2
@@ -19,8 +23,13 @@ BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  desktop-file-utils
+<<<<<<< HEAD
 BuildRequires:	opencc
 
+=======
+BuildRequires:  doxygen
+BuildRequires:  cmake
+>>>>>>> master
 
 %description
 Allows you to use google pinyin to enter Simple Chinese character on Sailfish OS.
@@ -71,5 +80,5 @@ rm -rf %{buildroot}
 %{_datadir}/icons/
 %{_datadir}/applications/%{name}.desktop
 %{_libdir}/qt5/qml/xyz/birdzhang/ime
-%{_libdir}/qt5/qml/net/toxip/openccqml
+%{_libdir}/qt5/qml/xyz/birdzhang/opencc
 %attr(0755, nemo, nemo) /home/nemo/.cache/%{name}
