@@ -12,7 +12,7 @@ OpenCCService::~OpenCCService() { delete converter; }
 void OpenCCService::chooseMode(QString mode) {
   try {
     mode.append(".json");
-    const std::string newMode(mode.toStdString());
+    const std::string newMode("/usr/share/harbour-souniaoime/data/config/" + mode.toStdString());
     opencc::SimpleConverter* newConverter =
         new opencc::SimpleConverter(newMode);
     delete converter;
