@@ -1,3 +1,7 @@
+## Use Github Actions to build sailfishos rpms
+## Copy from https://github.com/CODeRUS/screencast
+## Thanks CODeRUS
+
 name: SouniaoIME
 
 on:
@@ -42,7 +46,7 @@ jobs:
     - name: Upload build result
       uses: actions/upload-artifact@v2
       with:
-        name: screencast-rpms
+        name: harbour-souniaoime-rpms.zip
         path: output
 
     - name: Create release
