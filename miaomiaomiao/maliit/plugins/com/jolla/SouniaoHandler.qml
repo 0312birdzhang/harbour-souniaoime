@@ -82,24 +82,6 @@ InputHandler {
 
     }
 
-
-    OpenCC{
-        id: opencc2s
-        function revert(model){
-            model = model.replace("p","");
-            models = model.split("2");
-            return models[1]+"2"+ models[0];
-        }
-        
-    }
-    OpenCC{
-        id: opencc
-        function convert2s(str){
-            if(!str)return "";
-            return opencc2s.convert(str);
-        }
-    }
-
     QmlPinyin{
         id :gpy
         property var candidates: ListModel { }

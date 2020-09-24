@@ -5,11 +5,7 @@ Name:       harbour-souniaoime
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 
-<<<<<<< HEAD
-Version:    0.3.7
-=======
 Version:    0.3.8
->>>>>>> master
 Release:    1
 Summary:    PinyinIme for Sailfish OS
 License:    LGPLv2
@@ -17,19 +13,13 @@ Group:      Qt/Qt
 Source:     %{name}-%{version}.tar.gz
 URL:        https://github.com/0312birdzhang/harbour-soumaoime
 Requires:   jolla-keyboard
-Requires:   opencc
 BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  desktop-file-utils
-<<<<<<< HEAD
-BuildRequires:	opencc
-
-=======
 BuildRequires:  doxygen
 BuildRequires:  cmake
->>>>>>> master
 
 %description
 Allows you to use google pinyin to enter Simple Chinese character on Sailfish OS.
@@ -43,6 +33,7 @@ Allows you to use google pinyin to enter Simple Chinese character on Sailfish OS
 %qtc_qmake5
 
 %qtc_make %{?_smp_mflags}
+
 
 
 %install

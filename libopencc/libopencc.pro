@@ -25,7 +25,8 @@ DISTFILES = qmldir
 }
 
 
-data.files += data/config
+data.files += data/config/*.json
+ocd.files += data/ocd/*.ocd
 
 qmldir.files = qmldir
 unix {
@@ -33,7 +34,8 @@ unix {
     qmldir.path = $$installPath
     target.path = $$installPath
     data.path = /usr/share/harbour-souniaoime/data/
-    INSTALLS += target qmldir data
+    ocd.path = /usr/share/harbour-souniaoime/data/
+    INSTALLS += target qmldir data ocd
 }
 
 INCLUDEPATH += $$PWD/deps/gtest-1.7.0/include \
@@ -94,4 +96,5 @@ SOURCES += \
 
 OTHER_FILES += \
     CMakeLists.txt \
-    src/CMakeLists.txt
+    src/CMakeLists.txt \
+    data/CMakeLists.txt

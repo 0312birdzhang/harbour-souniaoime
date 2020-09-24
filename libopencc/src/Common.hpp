@@ -82,9 +82,9 @@ typedef std::shared_ptr<TextDict> TextDictPtr;
 }
 
 #ifndef PKGDATADIR
-const string PACKAGE_DATA_DIRECTORY = "";
+const string PACKAGE_DATA_DIRECTORY = "/usr/share/harbour-souniaoime/data/";
 #else // ifndef PKGDATADIR
-const string PACKAGE_DATA_DIRECTORY = PKGDATADIR "/";
+const string PACKAGE_DATA_DIRECTORY = "/usr/share/harbour-souniaoime/data/";
 #endif // ifndef PKGDATADIR
 
 #ifndef VERSION
