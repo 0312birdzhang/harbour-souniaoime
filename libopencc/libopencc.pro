@@ -33,6 +33,7 @@ unix {
     installPath = $$[QT_INSTALL_QML]/$$replace(uri, \\., /)
     qmldir.path = $$installPath
     target.path = $$installPath
+
     data.path = /usr/share/harbour-souniaoime/data/
     ocd.path = /usr/share/harbour-souniaoime/data/
     INSTALLS += target qmldir data ocd

@@ -17,6 +17,7 @@ BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)
+BuildRequires:  python3-base
 BuildRequires:  desktop-file-utils
 BuildRequires:  doxygen
 BuildRequires:  cmake
