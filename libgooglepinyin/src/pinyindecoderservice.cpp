@@ -78,8 +78,6 @@ bool PinyinDecoderService::init()
     if (sysDict.isEmpty())
         sysDict = "/usr/share/harbour-souniaoime/data/dict_pinyin.dat";
 
-    // QString usrDictPath = "/home/nemo/.cache/harbour-souniaoime";
-    // QFileInfo usrDictInfo(usrDictPath + "/usr_dict.dat");
     QString usrDictPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
     QFileInfo usrDictInfo(usrDictPath + QLatin1String("/pinyin/usr_dict.dat"));
     if (!usrDictInfo.exists()) {        
@@ -99,8 +97,6 @@ void PinyinDecoderService::setUserDictionary(bool enabled)
     if (enabled) {
         QString usrDictPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
         QFileInfo usrDictInfo(usrDictPath + QLatin1String("/pinyin/usr_dict.dat"));
-        // QString usrDictPath = "/home/nemo/.cache/harbour-souniaoime";
-        // QFileInfo usrDictInfo(usrDictPath + "/usr_dict.dat");
         im_init_user_dictionary(usrDictInfo.absoluteFilePath().toUtf8().constData());
     } else {
         im_init_user_dictionary(NULL);

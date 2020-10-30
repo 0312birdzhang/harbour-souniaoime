@@ -40,7 +40,7 @@ Allows you to use google pinyin to enter Simple Chinese character on Sailfish OS
 %install
 rm -rf %{buildroot}
 %qmake5_install
-mkdir -p %{buildroot}/home/nemo/.cache/%{name}
+
 
 
 # << install pre
@@ -73,4 +73,3 @@ rm -rf %{buildroot}
 %{_datadir}/applications/%{name}.desktop
 %{_libdir}/qt5/qml/xyz/birdzhang/ime
 %{_libdir}/qt5/qml/xyz/birdzhang/opencc
-%attr(0755, nemo, nemo) /home/nemo/.cache/%{name}
