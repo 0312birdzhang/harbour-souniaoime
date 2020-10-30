@@ -97,12 +97,12 @@ configure_file(
   @ONLY
 )
 
-install(
-  FILES
-    ${CMAKE_BINARY_DIR}/opencc.pc
-  DESTINATION
-    ${DIR_LIBRARY}/pkgconfig
-)
+#install(
+#  FILES
+#    ${CMAKE_BINARY_DIR}/opencc.pc
+#  DESTINATION
+#    ${DIR_LIBRARY}/pkgconfig
+#)
 
 ######## Compiler flags
 
