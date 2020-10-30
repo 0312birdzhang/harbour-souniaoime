@@ -4,13 +4,11 @@ on:
   push:
     branches:
       - master
-      - opencc
     tags:
       - '*'
   pull_request:
     branches:
       - master
-      - opencc
 
 env:
   RELEASE: 3.3.0.14
