@@ -11,8 +11,6 @@ uri = xyz.birdzhang.opencc
 
 CONFIG *= thread
 
-CONFIG += staticlib
-
 
 DISTFILES = qmldir
 
