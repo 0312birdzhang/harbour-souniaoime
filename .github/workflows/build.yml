@@ -1,7 +1,10 @@
+<<<<<<< HEAD
 ## Use Github Actions to build sailfishos rpms
 ## Copy from https://github.com/CODeRUS/screencast
 ## Thanks CODeRUS
 
+=======
+>>>>>>> opencc
 name: SouniaoIME
 
 on:
@@ -46,7 +49,11 @@ jobs:
     - name: Upload build result
       uses: actions/upload-artifact@v2
       with:
+<<<<<<< HEAD
         name: harbour-souniaoime-rpms.zip
+=======
+        name: harbour-souniaoime-rpms
+>>>>>>> opencc
         path: output
 
     - name: Create release
@@ -60,4 +67,8 @@ jobs:
         tag_name="${GITHUB_REF##*/}"
         hub release create "${assets[@]}" -m "$tag_name" "$tag_name"
       env:
+<<<<<<< HEAD
         GITHUB_TOKEN: ${{ secrets.MYCITOKEN }}
+=======
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+>>>>>>> opencc

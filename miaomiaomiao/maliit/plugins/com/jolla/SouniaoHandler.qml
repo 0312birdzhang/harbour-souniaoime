@@ -4,6 +4,7 @@ import Nemo.Configuration 1.0
 import com.meego.maliitquick 1.0
 import com.jolla.keyboard 1.0
 import xyz.birdzhang.ime 1.0
+import xyz.birdzhang.opencc 1.0
 
 InputHandler {
     id: handler
@@ -25,6 +26,8 @@ InputHandler {
         path: "/app/xyz.birdzhang.ime"
         property int pageSize: 20
         property int fetchSize: 15
+        property bool traditional: false
+        property string convertModel: "s2twp"
     }
 
     onPinyinModeChanged: {
@@ -46,6 +49,8 @@ InputHandler {
         if (active) {
             if(pinyinMode){
                 getPredictions(false);
+                opencc.chooseMode(config.convertModel);
+                opencc2s.chooseMode(opencc2s.revert(config.convertModel));
             }
             keyboard.layout.pinyinMode = handler.pinyinMode
             keyboard.shiftKeyPressed = false
@@ -60,6 +65,22 @@ InputHandler {
         }
     }
 
+    OpenCC{
+        id: opencc
+        function convert2s(str){
+            if(!str)return "";
+            return opencc2s.convert(str);
+        }
+    }
+    OpenCC{
+        id: opencc2s
+        function revert(model){
+            model = model.replace("p","");
+            models = model.split("2");
+            return models[1]+"2"+ models[0];
+        }
+
+    }
 
     QmlPinyin{
         id :gpy
@@ -85,7 +106,12 @@ InputHandler {
         function getMoreCandidates(){
             moreCandidates.clear();
             for (var i = pageSize; i < pred ; i++) {
-                moreCandidates.append({text: gpy.candidateAt(i), type: "partial", segment: 0, candidate: i})
+                moreCandidates.append({
+                          text: config.traditional? opencc.convert(gpy.candidateAt(i)) :gpy.candidateAt(i),
+                          type: "partial",
+                          segment: 0,
+                          candidate: i
+                         })
             }
             fetchMany = true
         }
@@ -106,7 +132,12 @@ InputHandler {
                 hasMore = false
             }
             for (var i = 0; i < pred && i < pageSize; i++) {
-                candidates.append({text: gpy.candidateAt(i), type: "full", segment: 0, candidate: i})
+                candidates.append({
+                          text: config.traditional? opencc.convert(gpy.candidateAt(i)) :gpy.candidateAt(i),
+                          type: "full",
+                          segment: 0,
+                          candidate: i
+                      })
             }
             candidatesUpdated()
         }
@@ -305,7 +336,7 @@ InputHandler {
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     maximumLineCount: 1
-                    text: handler.pinyinMode ? "中" : "英"
+                    text: handler.pinyinMode ? ( config.traditional? "繁":"简" ): "英"
                     Rectangle {
                         id: switchButton
                         color: Theme.primaryColor
@@ -766,20 +797,29 @@ InputHandler {
         commit(preedit)
         gpy.candidates.clear();
         var tmppredictionsList = [];
+        // if config.traditional, need convert t2s
         if(!isDelete){
-            tmppredictionsList = gpy.predictionList(
-                    MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-1,
-                                                                    MInputMethodQuick.cursorPosition),
-                        gpy.fetchSize);
+            var preText = MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-1,
+                                                                      MInputMethodQuick.cursorPosition);
+            if(config.traditional)preText = opencc.convert2s(preText);
+            tmppredictionsList = gpy.predictionList(preText,
+                                    gpy.fetchSize);
         }else{
+            var preDelText = MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-2,
+                                                                         MInputMethodQuick.cursorPosition-1);
+            if(config.traditional)preDelText =  opencc.convert2s(preDelText);
             tmppredictionsList = MInputMethodQuick.surroundingText.length > 2 ?
-                                gpy.predictionList(MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-2,
-                                                                                               MInputMethodQuick.cursorPosition-1),
-                                                   gpy.fetchSize):[]
+                        gpy.predictionList(preDelText,
+                                           gpy.fetchSize):[]
         }
-
+        // end
         for (var i = 0; i < tmppredictionsList.length; i++) {
-            gpy.candidates.append({text: tmppredictionsList[i], type: "full", segment: 0, candidate: i})
+            gpy.candidates.append({
+                            text: config.traditional? opencc.convert(tmppredictionsList[i]): tmppredictionsList[i],
+                            type: "full",
+                            segment: 0,
+                            candidate: i
+                           })
         }
         if(tmppredictionsList.length > 0){
             gpy.candidates.append({text: " ", type: "full", segment: 0, candidate: tmppredictionsList.length});

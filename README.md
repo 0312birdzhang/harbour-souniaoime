@@ -6,6 +6,8 @@
 
 后端代码来自 QtVirtualkeyboard pinyin 部分
 
+简繁转换使用 OpenCC，插件由 Topiasv 编写
+
 调试：
 
 `pkill maliit-server; MALIIT_DEBUG=enabled maliit-server`
