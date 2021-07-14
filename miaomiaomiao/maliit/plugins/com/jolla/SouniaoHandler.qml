@@ -315,7 +315,7 @@ InputHandler {
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     maximumLineCount: 1
-                    text: handler.pinyinMode ? ( config.traditional? "繁":"简" ): "英"
+                    text: handler.pinyinMode ? "简" : "英"
                     Rectangle {
                         id: switchButton
                         color: Theme.primaryColor
