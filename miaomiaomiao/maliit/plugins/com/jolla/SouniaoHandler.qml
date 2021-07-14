@@ -1,7 +1,6 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Nemo.Configuration 1.0
-import com.meego.maliitquick 1.0
 import com.jolla.keyboard 1.0
 import xyz.birdzhang.ime 1.0
 import xyz.birdzhang.opencc 1.0
