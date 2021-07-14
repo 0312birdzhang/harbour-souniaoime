@@ -28,9 +28,14 @@ Allows you to use google pinyin to enter Simple Chinese character on Sailfish OS
 
 %prep
 %setup -q -n %{name}-%{version}
+sed -i \
+    -e 's:BIN python:BIN /usr/bin/python3:g' \
+    libopencc/data/CMakeLists.txt
 
 %build
 # do nothing
+cd libopencc && %cmake \
+  -DCMAKE_SKIP_RPATH=OFF
 %qtc_qmake5
 
 %qtc_make %{?_smp_mflags}
