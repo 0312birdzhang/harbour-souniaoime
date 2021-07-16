@@ -215,7 +215,6 @@ InputHandler {
             id: topItem
             width: parent  ? parent.width : 0
             TopItem {
-//                visible:  !keyboard.inSymView
                 visible: false
                 width: parent.width
                 Rectangle {
@@ -269,6 +268,12 @@ InputHandler {
                         id: backGround
                         // onClicked:  accept(model.index)
                         onClicked: pinyinMode ? selectPhrase(model.text, model.index) : applyPrediction(model.text, model.index)
+                        onPressAndHold: {
+                            console.log("do nothing");
+                            //ignore selected
+                            listView.focus = true
+                        }
+
                         width: candidateText.width + Theme.paddingLarge * 2
                         height: listTopItem.height
 
