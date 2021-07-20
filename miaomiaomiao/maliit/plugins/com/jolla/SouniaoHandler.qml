@@ -17,7 +17,7 @@ InputHandler {
     property bool composingEnabled: !keyboard.inSymView
     property bool hasMore: composingEnabled && gpy.hasMore
     //mod start
-    property bool pinyinMode: MInputMethodQuick.contentType !== Maliit.UrlContentType && MInputMethodQuick.contentType !== Maliit.EmailContentType
+    property bool pinyinMode: true
     property int cursorIndex: MInputMethodQuick.cursorPosition
 
     ConfigurationGroup{
@@ -39,7 +39,7 @@ InputHandler {
     }
 
     onCursorIndexChanged: {
-        if(pinyinMode && preedit == "" ){
+        if(preedit == "" ){
             getPredictions(false);
         }
     }
@@ -242,7 +242,7 @@ InputHandler {
                     id: listView
                     model: gpy.candidates
                     orientation: ListView.Horizontal
-                    width: parent.width - switchLabel.width * 1.5
+                    width: parent.width
                     height: parent.height
                     boundsBehavior: ((!keyboard.expandedPaste && Clipboard.hasText) || gpy.hasMore) ? Flickable.DragOverBounds : Flickable.StopAtBounds
                     header: pasteComponent
@@ -268,7 +268,7 @@ InputHandler {
                     delegate: BackgroundItem {
                         id: backGround
                         // onClicked:  accept(model.index)
-                        onClicked: pinyinMode ? selectPhrase(model.text, model.index) : applyPrediction(model.text, model.index)
+                        onClicked: selectPhrase(model.text, model.index)
                         width: candidateText.width + Theme.paddingLarge * 2
                         height: listTopItem.height
 
@@ -322,47 +322,6 @@ InputHandler {
                         onTriggered: listView.positionViewAtBeginning()
                     }
 
-                }
-                Label {
-                    id: switchLabel
-                    anchors.right: parent.right
-                    anchors.rightMargin: Theme.paddingMedium
-                    anchors.verticalCenter: parent.verticalCenter
-                    height: parent.height
-                    width: parent.width * 0.11
-                    font { pixelSize: Theme.fontSizeSmall; family: Theme.fontFamily }
-                    color: Theme.primaryColor
-                    verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: Text.AlignHCenter
-                    maximumLineCount: 1
-                    text: handler.pinyinMode ? ( config.traditional? "繁":"简" ): "英"
-                    Rectangle {
-                        id: switchButton
-                        color: Theme.primaryColor
-                        opacity: 0.3 //0.17
-                        radius: geometry.keyRadius
-
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        height: parent.height * 0.8
-                        width: parent.width
-                        MouseArea {
-                            anchors.fill: parent
-                            onPressed: {
-                                switchLabel.color = Theme.highlightColor
-                                switchButton.color = Theme.highlightBackgroundColor
-                                switchButton.opacity = 0.6
-                            }
-                            onReleased: {
-                                switchLabel.color = Theme.primaryColor
-                                switchButton.color = Theme.primaryColor
-                                switchButton.opacity = 0.3
-                            }
-                            onClicked: {
-                                handler.pinyinMode = !handler.pinyinMode
-                            }
-                        }
-                    }
                 }
             }
         }
@@ -437,7 +396,7 @@ InputHandler {
                         id: gridItemBackground
                         height: Theme.itemSizeSmall
                         width: Math.ceil((gridText.contentWidth + 2*Theme.paddingMedium) / gridView.cellWidth)* gridView.cellWidth
-                        onClicked: pinyinMode ? selectPhrase(model.text, model.index) : applyPrediction(model.text, model.index) //accept(model.index)
+                        onClicked: selectPhrase(model.text, model.index)
 
                         Text {
                             id: gridText
@@ -519,7 +478,7 @@ InputHandler {
 
                 delegate: BackgroundItem {
                     id: background
-                    onClicked: pinyinMode ? selectPhrase(model.text, model.index) : applyPrediction(model.text, model.index) //accept(model.index)
+                    onClicked: selectPhrase(model.text, model.index)
                     width: parent.width
                     // height: geometry.keyHeightLandscape // assuming landscape!
                     height: geometry.keyHeightLandscape * candidateText.lineCount
@@ -595,188 +554,69 @@ InputHandler {
     function handleKeyClick() {
         var handled = false
         keyboard.expandedPaste = false
-        if (pinyinMode) {
-            if (pressedKey.key === Qt.Key_Space) {
-                if (preedit !== "") {
-                    accept(0)
+        if (pressedKey.key === Qt.Key_Space) {
+            if (preedit !== "") {
+                accept(0)
 
-                    if (keyboard.shiftState !== ShiftState.LockedShift) {
-                        keyboard.shiftState = ShiftState.NoShift
-                    }
-
-
-                    handled = true
+                if (keyboard.shiftState !== ShiftState.LockedShift) {
+                    keyboard.shiftState = ShiftState.NoShift
                 }
-            } else if (pressedKey.key === Qt.Key_Return) {
-                if (preedit !== "") {
-                    commit(preedit)
 
-                    if (keyboard.shiftState !== ShiftState.LockedShift) {
-                        keyboard.shiftState = ShiftState.NoShift
-                    }
 
-                    handled = true
-                }
-            } else if (pressedKey.key === Qt.Key_Backspace && preedit !== "") {
-
-                preedit = preedit.slice(0, preedit.length-1)
-                gpy.update_candidates(preedit)
-                MInputMethodQuick.sendPreedit(preedit)
+                handled = true
+            }
+        } else if (pressedKey.key === Qt.Key_Return) {
+            if (preedit !== "") {
+                commit(preedit)
 
                 if (keyboard.shiftState !== ShiftState.LockedShift) {
                     keyboard.shiftState = ShiftState.NoShift
                 }
 
                 handled = true
-            } else if (pressedKey.key === Qt.Key_Backspace && preedit == "") {
+            }
+        } else if (pressedKey.key === Qt.Key_Backspace && preedit !== "") {
+
+            preedit = preedit.slice(0, preedit.length-1)
+            gpy.update_candidates(preedit)
+            MInputMethodQuick.sendPreedit(preedit)
+
+            if (keyboard.shiftState !== ShiftState.LockedShift) {
+                keyboard.shiftState = ShiftState.NoShift
+            }
+
+            handled = true
+        } else if (pressedKey.key === Qt.Key_Backspace && preedit == "") {
 //                getPredictions(true);
-            } else if (pressedKey.key === Qt.Key_Home) {
-                MInputMethodQuick.sendKey(Qt.Key_Home, 0, "", Maliit.KeyClick)
-            } else if (pressedKey.key === Qt.Key_End) {
-                MInputMethodQuick.sendKey(Qt.Key_End, 0, "", Maliit.KeyClick)
-            } else if (pressedKey.key === Qt.Key_Up) {
-                MInputMethodQuick.sendKey(Qt.Key_Up, 0, "", Maliit.KeyClick)
-            } else if (pressedKey.key === Qt.Key_Down) {
-                MInputMethodQuick.sendKey(Qt.Key_Down, 0, "", Maliit.KeyClick)
-            } else if (pressedKey.key === Qt.Key_Left) {
-                MInputMethodQuick.sendKey(Qt.Key_Left, 0, "", Maliit.KeyClick)
-            } else if (pressedKey.key === Qt.Key_Right) {
-                MInputMethodQuick.sendKey(Qt.Key_Right, 0, "", Maliit.KeyClick)
-            } else if (pressedKey.text.length !== 0) {
-                if( !regLetter.test(pressedKey.text)){
-                    MInputMethodQuick.sendCommit(pressedKey.text)
-                }else{
+        } else if (pressedKey.key === Qt.Key_Home) {
+            MInputMethodQuick.sendKey(Qt.Key_Home, 0, "", Maliit.KeyClick)
+        } else if (pressedKey.key === Qt.Key_End) {
+            MInputMethodQuick.sendKey(Qt.Key_End, 0, "", Maliit.KeyClick)
+        } else if (pressedKey.key === Qt.Key_Up) {
+            MInputMethodQuick.sendKey(Qt.Key_Up, 0, "", Maliit.KeyClick)
+        } else if (pressedKey.key === Qt.Key_Down) {
+            MInputMethodQuick.sendKey(Qt.Key_Down, 0, "", Maliit.KeyClick)
+        } else if (pressedKey.key === Qt.Key_Left) {
+            MInputMethodQuick.sendKey(Qt.Key_Left, 0, "", Maliit.KeyClick)
+        } else if (pressedKey.key === Qt.Key_Right) {
+            MInputMethodQuick.sendKey(Qt.Key_Right, 0, "", Maliit.KeyClick)
+        } else if (pressedKey.text.length !== 0) {
+            if( !regLetter.test(pressedKey.text)){
+                MInputMethodQuick.sendCommit(pressedKey.text)
+            }else{
 
-                    preedit = preedit + pressedKey.text
-                    gpy.update_candidates(preedit)
-
-                    if (keyboard.shiftState !== ShiftState.LockedShift) {
-                        keyboard.shiftState = ShiftState.NoShift
-                    }
-
-                    MInputMethodQuick.sendPreedit(preedit)
-                }
-                handled = true
-            }
-        }else{
-            if (pressedKey.key === Qt.Key_Space) {
-                if (preedit !== "") {
-                    commit(preedit + " ")
-                    keyboard.autocaps = false // assuming no autocaps after input with xt9 preedit
-                } else {
-                    commit(" ")
-                }
+                preedit = preedit + pressedKey.text
+                gpy.update_candidates(preedit)
 
                 if (keyboard.shiftState !== ShiftState.LockedShift) {
-                    keyboard.shiftState = ShiftState.AutoShift
+                    keyboard.shiftState = ShiftState.NoShift
                 }
 
-                handled = true
-
-            } else if (pressedKey.key === Qt.Key_Return) {
-                if (preedit !== "") {
-                    commit(preedit)
-                }
-                if (keyboard.shiftState !== ShiftState.LockedShift) {
-                    keyboard.shiftState = ShiftState.AutoShift
-                }
-
-            } else if (pressedKey.key === Qt.Key_Backspace && preedit !== "") {
-                preedit = preedit.substr(0, preedit.length-1)
                 MInputMethodQuick.sendPreedit(preedit)
-
-                if (keyboard.shiftState !== ShiftState.LockedShift) {
-                    if (preedit.length === 0) {
-                        keyboard.shiftState = ShiftState.AutoShift
-                    } else {
-                        keyboard.shiftState = ShiftState.NoShift
-                    }
-                }
-
-                handled = true
-
-            } else if (pressedKey.key === Qt.Key_Home) {
-                MInputMethodQuick.sendKey(Qt.Key_Home, 0, "", Maliit.KeyClick)
-            } else if (pressedKey.key === Qt.Key_End) {
-                MInputMethodQuick.sendKey(Qt.Key_End, 0, "", Maliit.KeyClick)
-            } else if (pressedKey.key === Qt.Key_Up) {
-                MInputMethodQuick.sendKey(Qt.Key_Up, 0, "", Maliit.KeyClick)
-            } else if (pressedKey.key === Qt.Key_Down) {
-                MInputMethodQuick.sendKey(Qt.Key_Down, 0, "", Maliit.KeyClick)
-            } else if (pressedKey.key === Qt.Key_Left) {
-                MInputMethodQuick.sendKey(Qt.Key_Left, 0, "", Maliit.KeyClick)
-            } else if (pressedKey.key === Qt.Key_Right) {
-                MInputMethodQuick.sendKey(Qt.Key_Right, 0, "", Maliit.KeyClick)
             }
-            else if (pressedKey.text.length !== 0) {
-                var wordSymbol = "\'-".indexOf(pressedKey.text) >= 0
-
-                if (wordSymbol) {
-                    var forceAdd = pressedKey.keyType === KeyType.PopupKey
-                            || keyboard.inSymView
-                            || keyboard.inSymView2
-                            || wordSymbol
-
-//                    thread.processSymbol(pressedKey.text, forceAdd)
-                    preedit += pressedKey.text
-
-                    if (keyboard.shiftState !== ShiftState.LockedShift) {
-                        keyboard.shiftState = ShiftState.NoShift
-                    }
-
-                    MInputMethodQuick.sendPreedit(preedit)
-                    handled = true
-                } else {
-                    // normal symbols etc.
-                    if (preedit !== "") {
-//                        thread.acceptWord(preedit, false) // do we need to notify xt9 with the appended symbol?
-                        commit(preedit + pressedKey.text)
-                    } else {
-                        if (candidateSpaceIndex > 0 && candidateSpaceIndex === MInputMethodQuick.cursorPosition
-                                && ",.?!".indexOf(pressedKey.text) >= 0
-                                && MInputMethodQuick.surroundingText.charAt(MInputMethodQuick.cursorPosition - 1) === " ") {
-                            if ( "?!".indexOf(pressedKey.text) >= 0) {
-                                // follow French grammar rules for ? and !
-                                MInputMethodQuick.sendCommit(pressedKey.text + " ")
-                            } else {
-                                // replace automatically added space from candidate clicking
-                                MInputMethodQuick.sendCommit(pressedKey.text + " ", -1, 1)
-                            }
-                            preedit = ""
-                        } else {
-                            commit(pressedKey.text)
-                        }
-                    }
-
-                    handled = true
-                }
-            } else if (pressedKey.key === Qt.Key_Backspace && MInputMethodQuick.surroundingTextValid
-                       && !MInputMethodQuick.hasSelection
-                       && MInputMethodQuick.cursorPosition >= 2
-                       && isInputCharacter(MInputMethodQuick.surroundingText.charAt(MInputMethodQuick.cursorPosition - 2))) {
-                // backspacing into a word, re-activate it
-                var length = 1
-                var pos = MInputMethodQuick.cursorPosition - 3
-                for (; pos >= 0 && isInputCharacter(MInputMethodQuick.surroundingText.charAt(pos)); --pos) {
-                    length++
-                }
-                pos++
-
-                var word = MInputMethodQuick.surroundingText.substring(pos, pos + length)
-                MInputMethodQuick.sendKey(Qt.Key_Backspace, 0, "\b", Maliit.KeyClick)
-                MInputMethodQuick.sendPreedit(word, undefined, -length, length)
-//                thread.reactivateWord(word)
-                preedit = word
-                handled = true
-            }
-
-            if (pressedKey.keyType !== KeyType.ShiftKey && pressedKey.keyType !== KeyType.SymbolKey) {
-                candidateSpaceIndex = -1
-            }
-
-            return handled
-
+            handled = true
         }
+        
 
         return handled
     }
