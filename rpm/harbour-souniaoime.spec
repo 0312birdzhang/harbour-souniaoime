@@ -43,7 +43,12 @@ sed -i \
 %install
 rm -rf %{buildroot}
 %qmake5_install
-
+osarch=$(uname -p)
+if [[ "$osarch" = *"aarch64"* ]]; then
+    install -p -m 0644 libgooglepinyin/data/dict_pinyin.dat %{buildroot}%{_datadir}/%{name}/data/dict_pinyin.dat
+else
+    install -p -m 0644 libgooglepinyin/data/dict_pinyin_64.dat %{buildroot}%{_datadir}/%{name}/data/dict_pinyin.dat
+fi
 
 
 # << install pre

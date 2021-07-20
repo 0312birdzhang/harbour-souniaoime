@@ -68,13 +68,13 @@ DISTFILES = qmldir
     PRE_TARGETDEPS += $$copy_qmldir.target
 }
 
-data.files += data/dict_pinyin.dat
+#data.files += data/dict_pinyin.dat
 
 qmldir.files = qmldir
 unix {
     installPath = $$[QT_INSTALL_QML]/$$replace(uri, \\., /)
     qmldir.path = $$installPath
     target.path = $$installPath
-    data.path = /usr/share/harbour-souniaoime/data
-    INSTALLS += target qmldir data
+    #data.path = /usr/share/harbour-souniaoime/data
+    INSTALLS += target qmldir# data
 }
