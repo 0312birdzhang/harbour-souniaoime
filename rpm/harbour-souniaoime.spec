@@ -6,7 +6,7 @@ Name:       harbour-souniaoime
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 
 Version:    0.3.9
-Release:    2
+Release:    3
 Summary:    PinyinIme for Sailfish OS
 License:    LGPLv2
 Group:      Qt/Qt
@@ -33,9 +33,7 @@ sed -i \
     libopencc/data/CMakeLists.txt
 
 %build
-# do nothing
-cd libopencc && %cmake \
-  -DCMAKE_SKIP_RPATH=OFF
+
 %qtc_qmake5
 
 %qtc_make %{?_smp_mflags}
