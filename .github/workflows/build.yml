@@ -30,6 +30,7 @@ jobs:
             mkdir -p build ;
             cd build ;
             cp -r /share/* . ;
+            mb2 -t SailfishOS-$RELEASE-armv7hl qmake ;
             mb2 -t SailfishOS-$RELEASE-armv7hl build ;
             sudo cp -r RPMS/*.rpm /share/output"
 
@@ -38,6 +39,7 @@ jobs:
             mkdir -p build ;
             cd build ;
             cp -r /share/* . ;
+            mb2 -t SailfishOS-$RELEASE-i486 qmake ;
             mb2 -t SailfishOS-$RELEASE-i486 build ;
             sudo cp -r RPMS/*.rpm /share/output"
 
@@ -46,6 +48,7 @@ jobs:
             mkdir -p build ;
             cd build ;
             cp -r /share/* . ;
+            mb2 -t SailfishOS-$RELEASE-aarch64 qmake ;
             mb2 -t SailfishOS-$RELEASE-aarch64 build ;
             sudo cp -r RPMS/*.rpm /share/output"
 
