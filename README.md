@@ -15,7 +15,9 @@
 打包:
 
 ```
-export TARGET=xiaomi-ginkgo-armv7hl
+export RELEASE="4.1.0.24"
+export ARCH="armv7hl"
+export TARGET=SailfishOS-$RELEASE-$ARCH
 mb2 -t $TARGET qmake #必须
 mb2 -t $TARGET build
 mb2 -t $TARGET package
