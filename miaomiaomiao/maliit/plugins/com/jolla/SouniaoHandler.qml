@@ -75,7 +75,7 @@ InputHandler {
         id: opencc2s
         function revert(model){
             model = model.replace("p","");
-            models = model.split("2");
+            var models = model.split("2");
             return models[1]+"2"+ models[0];
         }
 
