@@ -34,6 +34,7 @@ KeyboardLayout {
     id: pinyinLayout
     type: "china_pinyin"
     inputMode: "simplified"
+    property bool pinyinMode: true
     splitSupported: true
 
     KeyboardRow {

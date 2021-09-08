@@ -11,3 +11,14 @@
 调试：
 
 `pkill maliit-server; MALIIT_DEBUG=enabled maliit-server`
+
+打包:
+
+```
+export RELEASE="4.1.0.24"
+export ARCH="armv7hl"
+export TARGET=SailfishOS-$RELEASE-$ARCH
+mb2 -t $TARGET qmake #必须
+mb2 -t $TARGET build
+mb2 -t $TARGET package
+```

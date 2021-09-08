@@ -5,7 +5,7 @@ Name:       harbour-souniaoime
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 
-Version:    0.3.9
+Version:    0.3.10
 Release:    1
 Summary:    PinyinIme for Sailfish OS
 License:    LGPLv2
@@ -33,9 +33,7 @@ sed -i \
     libopencc/data/CMakeLists.txt
 
 %build
-# do nothing
-cd libopencc && %cmake \
-  -DCMAKE_SKIP_RPATH=OFF
+
 %qtc_qmake5
 
 %qtc_make %{?_smp_mflags}
@@ -45,7 +43,12 @@ cd libopencc && %cmake \
 %install
 rm -rf %{buildroot}
 %qmake5_install
-
+osarch=$(uname -p)
+if [[ "$osarch" = *"aarch64"* ]]; then
+    install -p -m 0644 libgooglepinyin/data/dict_pinyin.dat %{buildroot}%{_datadir}/%{name}/data/dict_pinyin.dat
+else
+    install -p -m 0644 libgooglepinyin/data/dict_pinyin_64.dat %{buildroot}%{_datadir}/%{name}/data/dict_pinyin.dat
+fi
 
 
 # << install pre
