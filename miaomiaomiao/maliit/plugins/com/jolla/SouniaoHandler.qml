@@ -381,7 +381,7 @@ InputHandler {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        height: inputItems.height
+        height: keyboard.currentLayoutHeight
 
         visible: gpy.fetchMany
         color: Theme.highlightDimmerColor
