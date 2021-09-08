@@ -36,6 +36,8 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QtCore/QLibraryInfo>
+#include <QSysInfo>
+
 
 using namespace ime_pinyin;
 
@@ -75,9 +77,15 @@ bool PinyinDecoderService::init()
         return true;
 
     QString sysDict(QString::fromLatin1(qgetenv("QT_VIRTUALKEYBOARD_PINYIN_DICTIONARY").constData()));
-    if (sysDict.isEmpty())
-        sysDict = "/usr/share/harbour-souniaoime/data/dict_pinyin.dat";
+    QString cpuArch = QSysInfo::currentCpuArchitecture();
+    if (sysDict.isEmpty()){
+        if(cpuArch.endsWith("64")){
+           sysDict = "/usr/share/harbour-souniaoime/data/dict_pinyin_64.dat";
+        }else{
+           sysDict = "/usr/share/harbour-souniaoime/data/dict_pinyin.dat";
+        }
 
+    }
     QString usrDictPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
     QFileInfo usrDictInfo(usrDictPath + QLatin1String("/pinyin/usr_dict.dat"));
     if (!usrDictInfo.exists()) {        
