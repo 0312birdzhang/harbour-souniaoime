@@ -30,6 +30,7 @@ jobs:
             mkdir -p build ;
             cd build ;
             cp -r /share/* . ;
+            mb2 -t SailfishOS-$RELEASE-armv7hl qmake ;
             mb2 -t SailfishOS-$RELEASE-armv7hl build ;
             sudo cp -r RPMS/*.rpm /share/output"
 
@@ -38,6 +39,7 @@ jobs:
             mkdir -p build ;
             cd build ;
             cp -r /share/* . ;
+            mb2 -t SailfishOS-$RELEASE-i486 qmake ;
             mb2 -t SailfishOS-$RELEASE-i486 build ;
             sudo cp -r RPMS/*.rpm /share/output"
 
@@ -46,13 +48,14 @@ jobs:
             mkdir -p build ;
             cd build ;
             cp -r /share/* . ;
+            mb2 -t SailfishOS-$RELEASE-aarch64 qmake ;
             mb2 -t SailfishOS-$RELEASE-aarch64 build ;
             sudo cp -r RPMS/*.rpm /share/output"
 
     - name: Upload build result
       uses: actions/upload-artifact@v2
       with:
-        name: harbour-souniaoime-rpms.zip
+        name: harbour-souniaoime-rpms
         path: output
 
     - name: Create release

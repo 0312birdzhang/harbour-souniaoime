@@ -75,8 +75,12 @@ bool PinyinDecoderService::init()
         return true;
 
     QString sysDict(QString::fromLatin1(qgetenv("QT_VIRTUALKEYBOARD_PINYIN_DICTIONARY").constData()));
+    QString osArch = QSysInfo::buildAbi();
     if (sysDict.isEmpty())
-        sysDict = "/usr/share/harbour-souniaoime/data/dict_pinyin.dat";
+        if(osArch.contains("64")){
+           sysDict = "/usr/share/harbour-souniaoime/data/dict_pinyin_64.dat";
+        }else{
+           sysDict = "/usr/share/harbour-souniaoime/data/dict_pinyin.dat";
 
     QString usrDictPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
     QFileInfo usrDictInfo(usrDictPath + QLatin1String("/pinyin/usr_dict.dat"));

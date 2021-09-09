@@ -2,16 +2,12 @@ TEMPLATE = lib
 TARGET = QmlPinyin
 
 VERSION = 1.0.0
-QT += qml quick
+QT += qml quick core
 CONFIG += qt plugin c++11
 
 TARGET = $$qtLibraryTarget($$TARGET)
 
 uri = xyz.birdzhang.ime
-
-#OTHER_FILES +=\
-#    data/rawdict_utf16_65105_freq.txt \
-#    data/valid_utf16.txt
 	
 CONFIG *= thread	
 
@@ -68,7 +64,7 @@ DISTFILES = qmldir
     PRE_TARGETDEPS += $$copy_qmldir.target
 }
 
-data.files += data/dict_pinyin.dat
+data.files += data/dict_pinyin.dat data/dict_pinyin_64.dat
 
 qmldir.files = qmldir
 unix {
