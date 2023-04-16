@@ -11,3 +11,5 @@ before_install:
   - sudo npm install -g node-gyp
   - sudo npm install
 script: make test VERBOSE=1 && make package VERBOSE=1 && make node-test
+
+# Added comment - 
