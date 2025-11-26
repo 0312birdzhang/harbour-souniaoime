@@ -5,6 +5,8 @@ Name:       harbour-souniaoime
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 
+%define __requires_exclude ^lib(xyz.birdzhang.ime|xyz.birdzhang.opencc).*$
+
 Version:    0.3.10
 Release:    2
 Summary:    PinyinIme for Sailfish OS
@@ -12,15 +14,15 @@ License:    LGPLv2
 Group:      Qt/Qt
 Source:     %{name}-%{version}.tar.gz
 URL:        https://github.com/0312birdzhang/harbour-soumaoime
-Requires:   jolla-keyboard
-BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
+Requires:   jolla-keyboard >= 0.9.10
+BuildRequires:  pkgconfig(sailfishapp)
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)
-BuildRequires:  python3-base
-BuildRequires:  desktop-file-utils
-BuildRequires:  doxygen
-BuildRequires:  cmake
+BuildRequires:  desktop-file-utils >= 0.26
+BuildRequires:  doxygen >= 1.9.5
+BuildRequires:  cmake >= 3.27.1
+BuildRequires:  python3-base >= 3.8.18
 
 %description
 Allows you to use google pinyin to enter Simple Chinese character on Sailfish OS.
@@ -68,8 +70,6 @@ rm -rf %{buildroot}
 %{_bindir}
 %{_datadir}/maliit
 %{_datadir}/%{name}
-%{_datadir}/%{name}/qml
-%{_datadir}/%{name}/data
 %{_datadir}/icons/
 %{_datadir}/applications/%{name}.desktop
 %{_libdir}/qt5/qml/xyz/birdzhang/ime

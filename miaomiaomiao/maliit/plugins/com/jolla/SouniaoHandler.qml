@@ -57,10 +57,13 @@ InputHandler {
             keyboard.shiftState = ShiftState.NoShift;
             MInputMethodQuick.sendCommit("");
 
-        } else if(!pinyinMode && preedit != ""){
-            commit(preedit);
         } else {
-            handler.clearPreedit()
+            gpy.flushCache();
+            if(!pinyinMode && preedit != ""){
+                commit(preedit);
+            } else {
+                handler.clearPreedit()
+            }
         }
     }
 
@@ -100,6 +103,10 @@ InputHandler {
             gpy.init();
             //gpy.setUserDictionary(true);
             
+        }
+
+        Component.onDestruction: {
+            gpy.flushCache();
         }
 
         function getMoreCandidates(){
