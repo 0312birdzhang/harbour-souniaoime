@@ -132,12 +132,27 @@ bool MatrixSearch::init(const char *fn_sys_dict, const char *fn_usr_dict) {
   if (!dict_trie_->load_dict(fn_sys_dict, 1, kSysDictIdEnd))
     return false;
 
-  // If engine fails to load the user dictionary, reset the user dictionary
-  // to NULL.
+  // 尝试加载用户词典
   if (!user_dict_->load_dict(fn_usr_dict, kUserDictIdStart, kUserDictIdEnd)) {
-    delete user_dict_;
-    user_dict_ = NULL;
-    qDebug() << "user dict open error, init";
+    qDebug() << "user dict open error, init, trying to reset";
+    
+    // 尝试重置用户词典文件
+    UserDict* tmp_dict = static_cast<UserDict*>(user_dict_);
+    if (tmp_dict->reset(fn_usr_dict)) {
+      // 重置成功后再次尝试加载
+      if (user_dict_->load_dict(fn_usr_dict, kUserDictIdStart, kUserDictIdEnd)) {
+        qDebug() << "user dict reset and loaded successfully";
+        user_dict_->set_total_lemma_count_of_others(NGram::kSysDictTotalFreq);
+      } else {
+        qDebug() << "user dict reset failed, disabling user dict";
+        delete user_dict_;
+        user_dict_ = NULL;
+      }
+    } else {
+      qDebug() << "user dict reset failed, disabling user dict";
+      delete user_dict_;
+      user_dict_ = NULL;
+    }
   } else{
     user_dict_->set_total_lemma_count_of_others(NGram::kSysDictTotalFreq);
   }
@@ -159,10 +174,27 @@ bool MatrixSearch::init_fd(int sys_fd, long start_offset, long length,
   if (!dict_trie_->load_dict_fd(sys_fd, start_offset, length, 1, kSysDictIdEnd))
     return false;
 
+  // 尝试加载用户词典
   if (!user_dict_->load_dict(fn_usr_dict, kUserDictIdStart, kUserDictIdEnd)) {
-    delete user_dict_;
-    user_dict_ = NULL;
-    qDebug() << "user dict open error, init_fd";
+    qDebug() << "user dict open error, init_fd, trying to reset";
+    
+    // 尝试重置用户词典文件
+    UserDict* tmp_dict = static_cast<UserDict*>(user_dict_);
+    if (tmp_dict->reset(fn_usr_dict)) {
+      // 重置成功后再次尝试加载
+      if (user_dict_->load_dict(fn_usr_dict, kUserDictIdStart, kUserDictIdEnd)) {
+        qDebug() << "user dict reset and loaded successfully";
+        user_dict_->set_total_lemma_count_of_others(NGram::kSysDictTotalFreq);
+      } else {
+        qDebug() << "user dict reset failed, disabling user dict";
+        delete user_dict_;
+        user_dict_ = NULL;
+      }
+    } else {
+      qDebug() << "user dict reset failed, disabling user dict";
+      delete user_dict_;
+      user_dict_ = NULL;
+    }
   } else {
     user_dict_->set_total_lemma_count_of_others(NGram::kSysDictTotalFreq);
   }
@@ -184,10 +216,27 @@ void MatrixSearch::init_user_dictionary(const char *fn_usr_dict) {
 
   if (NULL != fn_usr_dict) {
     user_dict_ = static_cast<AtomDictBase*>(new UserDict());
+    
+    // 尝试加载用户词典
     if (!user_dict_->load_dict(fn_usr_dict, kUserDictIdStart, kUserDictIdEnd)) {
-      delete user_dict_;
-      user_dict_ = NULL;
-      qDebug() << "user dict open error, init_user_dictionary";
+      qDebug() << "user dict open error, init_user_dictionary, trying to reset";
+      
+      // 尝试重置用户词典文件
+      UserDict* tmp_dict = static_cast<UserDict*>(user_dict_);
+      if (tmp_dict->reset(fn_usr_dict)) {
+        // 重置成功后再次尝试加载
+        if (!user_dict_->load_dict(fn_usr_dict, kUserDictIdStart, kUserDictIdEnd)) {
+          qDebug() << "user dict reset failed, disabling user dict";
+          delete user_dict_;
+          user_dict_ = NULL;
+        } else {
+          qDebug() << "user dict reset and loaded successfully";
+        }
+      } else {
+        qDebug() << "user dict reset failed, disabling user dict";
+        delete user_dict_;
+        user_dict_ = NULL;
+      }
     }
   }
 

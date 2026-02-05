@@ -32,6 +32,7 @@
 #include "pinyindecoderservice.h"
 #include "pinyinime.h"
 #include "dictdef.h"
+#include "userdict.h"
 #include <QStandardPaths>
 #include <QFileInfo>
 #include <QDir>
@@ -88,13 +89,49 @@ bool PinyinDecoderService::init()
     }
     QString usrDictPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
     QFileInfo usrDictInfo(usrDictPath + QLatin1String("/pinyin/usr_dict.dat"));
-    if (!usrDictInfo.exists()) {        
-        QDir().mkpath(usrDictInfo.absolutePath());
+    
+    // 确保目录存在
+    QDir().mkpath(usrDictInfo.absolutePath());
+    
+    // 确保文件存在且不为空
+    if (!usrDictInfo.exists() || usrDictInfo.size() == 0) {
+        QFile file(usrDictInfo.absoluteFilePath());
+        if (file.open(QIODevice::WriteOnly)) {
+            // 写入词典版本号 (使用与 UserDict 中相同的版本号)
+            uint32 version = 0x0ABCDEF0;
+            file.write((const char*)&version, sizeof(version));
+            
+            // 写入空的词典信息 (根据 UserDictInfo 结构体)
+            // 对应 UserDict::reset 方法的实现
+            char info[40] = {0}; // 足够容纳 UserDictInfo 结构体
+            file.write(info, 40);
+            file.close();
+        }
     }
 
+    // 尝试初始化解码器
     initDone = im_open_decoder(sysDict.toUtf8().constData(), usrDictInfo.absoluteFilePath().toUtf8().constData());
-    if (!initDone){
+    
+    // 如果初始化失败，检查文件大小
+    if (!initDone) {
+        QFileInfo checkInfo(usrDictInfo.absoluteFilePath());
+        if (checkInfo.size() == 0) {
+            // 文件仍然为空，再次尝试创建
+            QFile file(usrDictInfo.absoluteFilePath());
+            if (file.open(QIODevice::WriteOnly)) {
+                // 写入词典版本号
+                uint32 version = 0x0ABCDEF0;
+                file.write((const char*)&version, sizeof(version));
+                // 写入空的词典信息
+                char info[40] = {0};
+                file.write(info, 40);
+                file.close();
+                // 再次尝试初始化
+                initDone = im_open_decoder(sysDict.toUtf8().constData(), usrDictInfo.absoluteFilePath().toUtf8().constData());
+            }
+        }
     }
+    
     return initDone;
 }
 
