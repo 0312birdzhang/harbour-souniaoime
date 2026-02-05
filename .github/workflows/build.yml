@@ -15,41 +15,34 @@ env:
   RELEASE: 5.0.0.43
 
 jobs:
-  build:
+  checkout:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v6
 
+  build:
+    runs-on: ubuntu-latest
+    needs: checkout
+    strategy:
+      matrix:
+        arch:
+          - { name: armv7hl, image: coderus/sailfishos-platform-sdk }
+          - { name: i486, image: coderus/sailfishos-platform-sdk }
+          - { name: aarch64, image: coderus/sailfishos-platform-sdk-aarch64 }
+
+    steps:
     - name: Prepare
       run: mkdir output
 
-    - name: Build armv7hl
-      run: docker run --rm --privileged -v $PWD:/share coderus/sailfishos-platform-sdk:$RELEASE /bin/bash -c "
+    - name: Build ${{ matrix.arch.name }}
+      run: docker run --rm --privileged -v $PWD:/share ${{ matrix.arch.image }}:$RELEASE /bin/bash -c "
             mkdir -p build ;
             cd build ;
             cp -r /share/* . ;
-            mb2 -t SailfishOS-$RELEASE-armv7hl qmake ;
-            mb2 -t SailfishOS-$RELEASE-armv7hl build ;
-            sudo cp -r RPMS/*.rpm /share/output"
-
-    - name: Build i486
-      run: docker run --rm --privileged -v $PWD:/share coderus/sailfishos-platform-sdk:$RELEASE /bin/bash -c "
-            mkdir -p build ;
-            cd build ;
-            cp -r /share/* . ;
-            mb2 -t SailfishOS-$RELEASE-i486 qmake ;
-            mb2 -t SailfishOS-$RELEASE-i486 build ;
-            sudo cp -r RPMS/*.rpm /share/output"
-
-    - name: Build aarch64
-      run: docker run --rm --privileged -v $PWD:/share coderus/sailfishos-platform-sdk-aarch64:$RELEASE /bin/bash -c "
-            mkdir -p build ;
-            cd build ;
-            cp -r /share/* . ;
-            mb2 -t SailfishOS-$RELEASE-aarch64 qmake ;
-            mb2 -t SailfishOS-$RELEASE-aarch64 build ;
-            sudo cp -r RPMS/*.rpm /share/output"
+            mb2 -t SailfishOS-$RELEASE-${{ matrix.arch.name }} qmake ;
+            mb2 -t SailfishOS-$RELEASE-${{ matrix.arch.name }} build ;
+            cp -r RPMS/*.rpm /share/output"
 
     - name: Upload build result
       uses: actions/upload-artifact@v4
