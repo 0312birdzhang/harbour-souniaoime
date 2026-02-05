@@ -36,6 +36,8 @@ jobs:
             cp -r /share/* . ;
             mb2 -t SailfishOS-$RELEASE-${{ matrix.arch.name }} qmake ;
             mb2 -t SailfishOS-$RELEASE-${{ matrix.arch.name }} build ;
+            mb2 -t SailfishOS-$RELEASE-${{ matrix.arch.name }} package ;
+            ls -al RPMS;
             cp -r RPMS/*.rpm /share/output"
 
     - name: Upload build result
