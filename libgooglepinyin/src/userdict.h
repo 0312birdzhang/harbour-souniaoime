@@ -89,6 +89,8 @@ class UserDict : public AtomDictBase {
   void reclaim();
 
   void defragment();
+  
+  bool reset(const char *file);
 
 #ifdef ___SYNC_ENABLED___
   void clear_sync_lemmas(unsigned int start, unsigned int end);
@@ -319,8 +321,6 @@ class UserDict : public AtomDictBase {
                           uint16 fulllen, const UserDictSearchable *searchable);
 
   uint32 get_dict_file_size(UserDictInfo * info);
-
-  bool reset(const char *file);
 
   bool validate(const char *file);
 
