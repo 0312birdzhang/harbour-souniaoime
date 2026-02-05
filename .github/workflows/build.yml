@@ -30,7 +30,10 @@ jobs:
       run: mkdir output
 
     - name: Build ${{ matrix.arch.name }}
-      run: docker run --rm --privileged -v $PWD:/share -u root ${{ matrix.arch.image }}:$RELEASE /bin/bash -c "
+      run: 
+        mkdir -p output
+        chmod 777 output
+        docker run --rm --privileged -v $PWD:/share ${{ matrix.arch.image }}:$RELEASE /bin/bash -c "
             mkdir -p build ;
             cd build ;
             cp -r /share/* . ;
