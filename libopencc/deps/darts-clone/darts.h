@@ -36,7 +36,10 @@ typedef int value_type;
 
 // The main structure of Darts-clone is an array of <DoubleArrayUnit>s, and the
 // unit type is actually a wrapper of <id_type>.
-typedef size_t id_type;
+// Use fixed-width uint32_t for cross-platform binary compatibility:
+// .ocd files serialized with sizeof(size_t)=4 on 32-bit must also be
+// readable on 64-bit where sizeof(size_t)=8.
+typedef uint32_t id_type;
 
 // <progress_func_type> is the type of callback functions for reporting the
 // progress of building a dictionary. See also build() of <DoubleArray>.
