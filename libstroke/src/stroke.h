@@ -25,7 +25,7 @@ private:
     QStringList matchStroke(const QString &strokeSequence);
 
     QStringList m_candidates;
-    QMap<QString, QStringList> m_strokeMap;
+    QMap<QString, QList<QString>> m_strokeMap;
 };
 
 class QmlStrokePlugin : public QQmlExtensionPlugin

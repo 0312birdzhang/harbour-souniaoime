@@ -1557,7 +1557,7 @@ QStringList StrokeRecognition::matchStroke(const QString &strokeSequence)
 
     // exact match first
     if (m_strokeMap.contains(strokeSequence)) {
-        return m_strokeMap[strokeSequence];
+        return QStringList(m_strokeMap[strokeSequence]);
     }
 
     // prefix match
