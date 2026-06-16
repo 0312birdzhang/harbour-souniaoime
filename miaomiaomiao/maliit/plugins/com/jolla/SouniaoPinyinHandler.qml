@@ -99,7 +99,7 @@ InputHandler {
         signal candidatesUpdated
 
         Component.onCompleted:{
-            console.log("pageSize:"+config.pageSize)
+            // console.log("pageSize:"+config.pageSize)
             gpy.init();
             //gpy.setUserDictionary(true);
             
