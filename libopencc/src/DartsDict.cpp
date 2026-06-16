@@ -24,6 +24,7 @@
 using namespace opencc;
 
 static const char* OCDHEADER = "OPENCCDARTS1";
+static const size_t OCDHEADER_LEN = 13;
 
 class DartsDict::DartsInternal {
 public:
@@ -94,10 +95,9 @@ DartsDictPtr DartsDict::NewFromFile(FILE* fp) {
   DartsDictPtr dict(new DartsDict());
 
   Darts::DoubleArray* doubleArray = new Darts::DoubleArray();
-  size_t headerLen = strlen(OCDHEADER);
-  void* buffer = malloc(sizeof(char) * headerLen);
-  size_t bytesRead = fread(buffer, sizeof(char), headerLen, fp);
-  if (bytesRead != headerLen || memcmp(buffer, OCDHEADER, headerLen) != 0) {
+  void* buffer = malloc(sizeof(char) * OCDHEADER_LEN);
+  size_t bytesRead = fread(buffer, sizeof(char), OCDHEADER_LEN, fp);
+  if (bytesRead != OCDHEADER_LEN || memcmp(buffer, OCDHEADER, OCDHEADER_LEN) != 0) {
     throw InvalidFormat("Invalid OpenCC dictionary header");
   }
   free(buffer);
@@ -148,7 +148,7 @@ DartsDictPtr DartsDict::NewFromDict(const Dict& thatDict) {
 void DartsDict::SerializeToFile(FILE* fp) const {
   Darts::DoubleArray& dict = *internal->doubleArray;
 
-  fwrite(OCDHEADER, sizeof(char), strlen(OCDHEADER), fp);
+  fwrite(OCDHEADER, sizeof(char), OCDHEADER_LEN, fp);
 
   size_t dartsSize = dict.total_size();
   fwrite(&dartsSize, sizeof(size_t), 1, fp);
