@@ -38,7 +38,7 @@ endif()
 # skip install rules by default.
 if(PROJECT_IS_TOP_LEVEL)
   set(_OPENCC_DEFAULT_BUILD_SHARED_LIBS ON)
-  set(_OPENCC_DEFAULT_ENABLE_INSTALL OFF)
+  set(_OPENCC_DEFAULT_ENABLE_INSTALL ON)
 else()
   set(_OPENCC_DEFAULT_BUILD_SHARED_LIBS OFF)
   set(_OPENCC_DEFAULT_ENABLE_INSTALL OFF)
@@ -174,14 +174,14 @@ configure_file(
   @ONLY
 )
 
-if(OPENCC_ENABLE_INSTALL)
-install(
-  FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/opencc.pc
-  DESTINATION
-    ${DIR_LIBRARY}/pkgconfig
-)
-endif()
+# if(OPENCC_ENABLE_INSTALL)
+# install(
+#   FILES
+#     ${CMAKE_CURRENT_BINARY_DIR}/opencc.pc
+#   DESTINATION
+#     ${DIR_LIBRARY}/pkgconfig
+# )
+# endif()
 
 write_basic_package_version_file(
   OpenCCConfigVersion.cmake
