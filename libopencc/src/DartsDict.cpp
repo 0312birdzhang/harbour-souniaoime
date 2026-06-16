@@ -24,7 +24,6 @@
 using namespace opencc;
 
 static const char* OCDHEADER = "OPENCCDARTS1";
-static const size_t OCDHEADER_LEN = 13;
 
 class DartsDict::DartsInternal {
 public:
@@ -91,22 +90,28 @@ Optional<const DictEntry*> DartsDict::MatchPrefix(const char* word) const {
 
 LexiconPtr DartsDict::GetLexicon() const { return lexicon; }
 
+// File format: 12-byte magic "OPENCCDARTS1" + uint32 dartsSize + darts array + BinaryDict data.
+// dartsSize is stored as fixed-width uint32_t (4 bytes) for cross-platform compatibility.
+// sizeof(size_t) varies between 4 (32-bit) and 8 (64-bit), so we must NOT use it for serialization.
+
 DartsDictPtr DartsDict::NewFromFile(FILE* fp) {
   DartsDictPtr dict(new DartsDict());
 
   Darts::DoubleArray* doubleArray = new Darts::DoubleArray();
-  void* buffer = malloc(sizeof(char) * OCDHEADER_LEN);
-  size_t bytesRead = fread(buffer, sizeof(char), OCDHEADER_LEN, fp);
-  if (bytesRead != OCDHEADER_LEN || memcmp(buffer, OCDHEADER, OCDHEADER_LEN) != 0) {
+  void* buffer = malloc(sizeof(char) * strlen(OCDHEADER));
+  size_t bytesRead = fread(buffer, sizeof(char), strlen(OCDHEADER), fp);
+  if (bytesRead != strlen(OCDHEADER) ||
+      memcmp(buffer, OCDHEADER, strlen(OCDHEADER)) != 0) {
     throw InvalidFormat("Invalid OpenCC dictionary header");
   }
   free(buffer);
 
-  size_t dartsSize;
-  bytesRead = fread(&dartsSize, sizeof(size_t), 1, fp);
-  if (bytesRead * sizeof(size_t) != sizeof(size_t)) {
+  uint32_t dartsSize32;
+  bytesRead = fread(&dartsSize32, sizeof(uint32_t), 1, fp);
+  if (bytesRead != 1) {
     throw InvalidFormat("Invalid OpenCC dictionary header (dartsSize)");
   }
+  size_t dartsSize = dartsSize32;
   buffer = malloc(dartsSize);
   bytesRead = fread(buffer, 1, dartsSize, fp);
   if (bytesRead != dartsSize) {
@@ -148,10 +153,10 @@ DartsDictPtr DartsDict::NewFromDict(const Dict& thatDict) {
 void DartsDict::SerializeToFile(FILE* fp) const {
   Darts::DoubleArray& dict = *internal->doubleArray;
 
-  fwrite(OCDHEADER, sizeof(char), OCDHEADER_LEN, fp);
+  fwrite(OCDHEADER, sizeof(char), strlen(OCDHEADER), fp);
 
-  size_t dartsSize = dict.total_size();
-  fwrite(&dartsSize, sizeof(size_t), 1, fp);
+  uint32_t dartsSize = static_cast<uint32_t>(dict.total_size());
+  fwrite(&dartsSize, sizeof(uint32_t), 1, fp);
   fwrite(dict.array(), sizeof(char), dartsSize, fp);
 
   internal->binary.reset(new BinaryDict(lexicon));
