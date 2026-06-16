@@ -1,7 +1,7 @@
 /*
  * Open Chinese Convert
  *
- * Copyright 2010-2014 BYVoid <byvoid@byvoid.com>
+ * Copyright 2010-2014 Carbo Kuo <byvoid@byvoid.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@
 
 #include "Export.hpp"
 
-#ifdef _MSC_VER
-
-// Until Visual Studio 2013 (12.0), C++ 11 "noexcept" qualifier is not supported
+#if defined(_MSC_VER) && _MSC_VER < 1900
+// Before Visual Studio 2015 (14.0), C++ 11 "noexcept" qualifier is not
+// supported
 #define noexcept
 #endif // ifdef _MSC_VER
 
