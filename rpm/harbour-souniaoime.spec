@@ -74,4 +74,3 @@ rm -rf %{buildroot}
 %{_datadir}/applications/%{name}.desktop
 %{_libdir}/qt5/qml/xyz/birdzhang/ime
 %{_libdir}/qt5/qml/xyz/birdzhang/opencc
-%{_libdir}/qt5/qml/xyz/birdzhang/stroke
