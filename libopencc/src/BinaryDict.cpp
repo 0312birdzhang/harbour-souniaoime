@@ -35,28 +35,26 @@ void BinaryDict::SerializeToFile(FILE* fp) const {
   size_t keyTotalLength = 0, valueTotalLength = 0;
   ConstructBuffer(keyBuf, keyOffsets, keyTotalLength, valueBuf,
                   valueOffsets, valueTotalLength);
-  // Number of items
-  size_t numItems = lexicon->Length();
-  fwrite(&numItems, sizeof(size_t), 1, fp);
+  // All size fields stored as uint32_t for cross-platform compatibility.
+  uint32_t numItems = static_cast<uint32_t>(lexicon->Length());
+  fwrite(&numItems, sizeof(uint32_t), 1, fp);
 
-  // Data
-  fwrite(&keyTotalLength, sizeof(size_t), 1, fp);
+  uint32_t u32KeyTotal = static_cast<uint32_t>(keyTotalLength);
+  fwrite(&u32KeyTotal, sizeof(uint32_t), 1, fp);
   fwrite(keyBuf.c_str(), sizeof(char), keyTotalLength, fp);
-  fwrite(&valueTotalLength, sizeof(size_t), 1, fp);
+  uint32_t u32ValueTotal = static_cast<uint32_t>(valueTotalLength);
+  fwrite(&u32ValueTotal, sizeof(uint32_t), 1, fp);
   fwrite(valueBuf.c_str(), sizeof(char), valueTotalLength, fp);
 
   size_t keyCursor = 0, valueCursor = 0;
   for (const DictEntry* entry : *lexicon) {
-    // Number of values
-    size_t numValues = entry->NumValues();
-    fwrite(&numValues, sizeof(size_t), 1, fp);
-    // Key offset
-    size_t keyOffset = keyOffsets[keyCursor++];
-    fwrite(&keyOffset, sizeof(size_t), 1, fp);
-    // Values offset
+    uint32_t numValues = static_cast<uint32_t>(entry->NumValues());
+    fwrite(&numValues, sizeof(uint32_t), 1, fp);
+    uint32_t keyOffset = static_cast<uint32_t>(keyOffsets[keyCursor++]);
+    fwrite(&keyOffset, sizeof(uint32_t), 1, fp);
     for (size_t i = 0; i < numValues; i++) {
-      size_t valueOffset = valueOffsets[valueCursor++];
-      fwrite(&valueOffset, sizeof(size_t), 1, fp);
+      uint32_t valueOffset = static_cast<uint32_t>(valueOffsets[valueCursor++]);
+      fwrite(&valueOffset, sizeof(uint32_t), 1, fp);
     }
   }
   assert(keyCursor == numItems);
@@ -65,19 +63,22 @@ void BinaryDict::SerializeToFile(FILE* fp) const {
 BinaryDictPtr BinaryDict::NewFromFile(FILE* fp) {
   BinaryDictPtr dict(new BinaryDict(LexiconPtr(new Lexicon)));
 
-  // Number of items
-  size_t numItems;
-  size_t unitsRead = fread(&numItems, sizeof(size_t), 1, fp);
+  // Read uint32 fields; the .ocd files were generated on a 32-bit platform
+  // where sizeof(size_t) == 4, so on 64-bit we must read fixed 4-byte values.
+
+  uint32_t numItems32;
+  size_t unitsRead = fread(&numItems32, sizeof(uint32_t), 1, fp);
   if (unitsRead != 1) {
     throw InvalidFormat("Invalid OpenCC binary dictionary (numItems)");
   }
+  size_t numItems = numItems32;
 
-  // Keys
-  size_t keyTotalLength;
-  unitsRead = fread(&keyTotalLength, sizeof(size_t), 1, fp);
+  uint32_t keyTotalLength32;
+  unitsRead = fread(&keyTotalLength32, sizeof(uint32_t), 1, fp);
   if (unitsRead != 1) {
     throw InvalidFormat("Invalid OpenCC binary dictionary (keyTotalLength)");
   }
+  size_t keyTotalLength = keyTotalLength32;
   dict->keyBuffer.resize(keyTotalLength);
   unitsRead = fread(const_cast<char*>(dict->keyBuffer.c_str()), sizeof(char),
                     keyTotalLength, fp);
@@ -85,12 +86,12 @@ BinaryDictPtr BinaryDict::NewFromFile(FILE* fp) {
     throw InvalidFormat("Invalid OpenCC binary dictionary (keyBuffer)");
   }
 
-  // Values
-  size_t valueTotalLength;
-  unitsRead = fread(&valueTotalLength, sizeof(size_t), 1, fp);
+  uint32_t valueTotalLength32;
+  unitsRead = fread(&valueTotalLength32, sizeof(uint32_t), 1, fp);
   if (unitsRead != 1) {
     throw InvalidFormat("Invalid OpenCC binary dictionary (valueTotalLength)");
   }
+  size_t valueTotalLength = valueTotalLength32;
   dict->valueBuffer.resize(valueTotalLength);
   unitsRead = fread(const_cast<char*>(dict->valueBuffer.c_str()), sizeof(char),
                     valueTotalLength, fp);
@@ -98,30 +99,29 @@ BinaryDictPtr BinaryDict::NewFromFile(FILE* fp) {
     throw InvalidFormat("Invalid OpenCC binary dictionary (valueBuffer)");
   }
 
-  // Offsets
   for (size_t i = 0; i < numItems; i++) {
-    // Number of values
-    size_t numValues;
-    unitsRead = fread(&numValues, sizeof(size_t), 1, fp);
+    uint32_t numValues32;
+    unitsRead = fread(&numValues32, sizeof(uint32_t), 1, fp);
     if (unitsRead != 1) {
       throw InvalidFormat("Invalid OpenCC binary dictionary (numValues)");
     }
-    // Key offset
-    size_t keyOffset;
-    unitsRead = fread(&keyOffset, sizeof(size_t), 1, fp);
+    size_t numValues = numValues32;
+
+    uint32_t keyOffset32;
+    unitsRead = fread(&keyOffset32, sizeof(uint32_t), 1, fp);
     if (unitsRead != 1) {
       throw InvalidFormat("Invalid OpenCC binary dictionary (keyOffset)");
     }
-    const char* key = dict->keyBuffer.c_str() + keyOffset;
-    // Value offset
+    const char* key = dict->keyBuffer.c_str() + keyOffset32;
+
     vector<const char*> values;
     for (size_t j = 0; j < numValues; j++) {
-      size_t valueOffset;
-      unitsRead = fread(&valueOffset, sizeof(size_t), 1, fp);
+      uint32_t valueOffset32;
+      unitsRead = fread(&valueOffset32, sizeof(uint32_t), 1, fp);
       if (unitsRead != 1) {
         throw InvalidFormat("Invalid OpenCC binary dictionary (valueOffset)");
       }
-      const char* value = dict->valueBuffer.c_str() + valueOffset;
+      const char* value = dict->valueBuffer.c_str() + valueOffset32;
       values.push_back(value);
     }
     PtrDictEntry* entry = new PtrDictEntry(key, values);

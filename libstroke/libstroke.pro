@@ -10,11 +10,9 @@ TARGET = $$qtLibraryTarget($$TARGET)
 uri = xyz.birdzhang.stroke
 
 SOURCES += \
-    src/plugin.cpp \
     src/stroke.cpp
 
 HEADERS += \
-    src/plugin.h \
     src/stroke.h
 
 DISTFILES += qmldir
