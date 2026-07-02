@@ -94,34 +94,6 @@ Page{
             }
 
             SectionHeader{
-                text: "简繁设置"
-                font.pixelSize: Theme.fontSizeMedium * 0.8
-            }
-
-            TextSwitch {
-                checked: config.traditional
-                text: checked ? '繁体':'简体'
-                description: "选中后输入的文字将用OpenCC转换为繁体"
-                onClicked: {
-                    config.traditional = !config.traditional
-                }
-            }
-
-
-            ComboBox {
-                enabled: config.traditional
-                label: "选择简体到繁体模式"
-                menu: ContextMenu {
-                    Repeater {
-                        model: convertModel
-                        MenuItem {
-                            text: label
-                        }
-                    }
-                }
-
-            }
-            SectionHeader{
                 text: "联想词数量"
                 font.pixelSize: Theme.fontSizeMedium * 0.8
             }

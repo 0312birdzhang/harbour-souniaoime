@@ -1,7 +1,7 @@
 /*
  * Open Chinese Convert
  *
- * Copyright 2015-2026 Carbo Kuo and contributors
+ * Copyright 2015 BYVoid <byvoid@byvoid.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,22 @@
  * limitations under the License.
  */
 
-#include <fstream>
-
-#include "src/CmdLineOutput.hpp"
-#include "src/PhraseExtract.hpp"
+#include "../CmdLineOutput.hpp"
+#include "../PhraseExtract.hpp"
 
 using opencc::Exception;
-using opencc::PhraseExtract;
 using opencc::UTF8StringSlice;
+using opencc::PhraseExtract;
 
-void Extract(const std::vector<std::string>& inputFiles,
-             const std::string& outputFile) {
+void Extract(const vector<string>& inputFiles, const string& outputFile) {
   std::ostringstream buffer;
   for (const auto& inputFile : inputFiles) {
     std::ifstream ifs(inputFile);
-    const std::string contents((std::istreambuf_iterator<char>(ifs)),
-                               (std::istreambuf_iterator<char>()));
+    const string contents((std::istreambuf_iterator<char>(ifs)),
+                          (std::istreambuf_iterator<char>()));
     buffer << contents;
   }
-  const std::string& text = buffer.str();
+  const string& text = buffer.str();
   PhraseExtract extractor;
   extractor.SetWordMaxLength(2);
   extractor.SetPrefixSetLength(1);
@@ -58,12 +55,12 @@ int main(int argc, const char* argv[]) {
                        VERSION);
     CmdLineOutput cmdLineOutput;
     cmd.setOutput(&cmdLineOutput);
-    TCLAP::UnlabeledMultiArg<std::string> fileNames(
-        "fileName", "Input files", true /* required */, "files");
+    TCLAP::UnlabeledMultiArg<string> fileNames("fileName", "Input files",
+                                               true /* required */, "files");
     cmd.add(fileNames);
-    TCLAP::ValueArg<std::string> outputArg(
-        "o", "output", "Output file", true /* required */, "" /* default */,
-        "file" /* type */, cmd);
+    TCLAP::ValueArg<string> outputArg("o", "output", "Output file",
+                                      true /* required */, "" /* default */,
+                                      "file" /* type */, cmd);
     cmd.parse(argc, argv);
     Extract(fileNames.getValue(), outputArg.getValue());
   } catch (TCLAP::ArgException& e) {

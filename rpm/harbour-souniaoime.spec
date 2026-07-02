@@ -7,7 +7,7 @@ Name:       harbour-souniaoime
 
 %define __requires_exclude ^lib(xyz.birdzhang.ime|xyz.birdzhang.opencc).*$
 
-Version:    0.3.10
+Version:    0.4.1
 Release:    2
 Summary:    PinyinIme for Sailfish OS
 License:    LGPLv2
@@ -25,7 +25,7 @@ BuildRequires:  cmake >= 3.27.1
 BuildRequires:  python3-base >= 3.8.18
 
 %description
-Allows you to use google pinyin to enter Simple Chinese character on Sailfish OS.
+Allows you to use google pinyin and stroke to enter Simple Chinese character on Sailfish OS.
 
 
 %prep
@@ -44,6 +44,7 @@ sed -i \
 
 %install
 rm -rf %{buildroot}
+mkdir -p %{buildroot}/usr/lib64/cmake/opencc
 %qmake5_install
 
 # << install pre
@@ -74,3 +75,4 @@ rm -rf %{buildroot}
 %{_datadir}/applications/%{name}.desktop
 %{_libdir}/qt5/qml/xyz/birdzhang/ime
 %{_libdir}/qt5/qml/xyz/birdzhang/opencc
+%{_libdir}/qt5/qml/xyz/birdzhang/stroke

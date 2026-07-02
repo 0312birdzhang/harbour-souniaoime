@@ -3,7 +3,6 @@ import Sailfish.Silica 1.0
 import Nemo.Configuration 1.0
 import com.jolla.keyboard 1.0
 import xyz.birdzhang.ime 1.0
-import xyz.birdzhang.opencc 1.0
 
 InputHandler {
     id: handler
@@ -48,8 +47,6 @@ InputHandler {
         if (active) {
             if(pinyinMode){
                 getPredictions(false);
-                opencc.chooseMode(config.convertModel);
-                opencc2s.chooseMode(opencc2s.revert(config.convertModel));
             }
             keyboard.layout.pinyinMode = handler.pinyinMode
             keyboard.shiftKeyPressed = false
@@ -67,22 +64,6 @@ InputHandler {
         }
     }
 
-    OpenCC{
-        id: opencc
-        function convert2s(str){
-            if(!str)return "";
-            return opencc2s.convert(str);
-        }
-    }
-    OpenCC{
-        id: opencc2s
-        function revert(model){
-            model = model.replace("p","");
-            var models = model.split("2");
-            return models[1]+"2"+ models[0];
-        }
-
-    }
 
     QmlPinyin{
         id :gpy
@@ -113,7 +94,7 @@ InputHandler {
             moreCandidates.clear();
             for (var i = pageSize; i < pred ; i++) {
                 moreCandidates.append({
-                          text: config.traditional? opencc.convert(gpy.candidateAt(i)) :gpy.candidateAt(i),
+                          text: gpy.candidateAt(i),
                           type: "partial",
                           segment: 0,
                           candidate: i
@@ -139,7 +120,7 @@ InputHandler {
             }
             for (var i = 0; i < pred && i < pageSize; i++) {
                 candidates.append({
-                          text: config.traditional? opencc.convert(gpy.candidateAt(i)) :gpy.candidateAt(i),
+                          text: gpy.candidateAt(i),
                           type: "full",
                           segment: 0,
                           candidate: i
@@ -646,13 +627,11 @@ InputHandler {
         if(!isDelete){
             var preText = MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-1,
                                                                       MInputMethodQuick.cursorPosition);
-            if(config.traditional)preText = opencc.convert2s(preText);
             tmppredictionsList = gpy.predictionList(preText,
                                     gpy.fetchSize);
         }else{
             var preDelText = MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-2,
                                                                          MInputMethodQuick.cursorPosition-1);
-            if(config.traditional)preDelText =  opencc.convert2s(preDelText);
             tmppredictionsList = MInputMethodQuick.surroundingText.length > 2 ?
                         gpy.predictionList(preDelText,
                                            gpy.fetchSize):[]
@@ -660,7 +639,7 @@ InputHandler {
         // end
         for (var i = 0; i < tmppredictionsList.length; i++) {
             gpy.candidates.append({
-                            text: config.traditional? opencc.convert(tmppredictionsList[i]): tmppredictionsList[i],
+                            text: tmppredictionsList[i],
                             type: "full",
                             segment: 0,
                             candidate: i

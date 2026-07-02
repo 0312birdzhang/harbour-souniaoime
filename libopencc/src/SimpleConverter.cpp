@@ -1,7 +1,7 @@
 /*
  * Open Chinese Convert
  *
- * Copyright 2010-2026 Carbo Kuo and contributors
+ * Copyright 2010-2014 BYVoid <byvoid@byvoid.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,69 +16,33 @@
  * limitations under the License.
  */
 
+#ifdef _MSC_VER
+#define NOMINMAX
+#include <Windows.h>
+#undef NOMINMAX
+#endif // _MSC_VER
+
 #include "Config.hpp"
 #include "Converter.hpp"
-#include "UTF8Util.hpp"
 #include "opencc.h"
-
-#ifdef BAZEL
-#include "tools/cpp/runfiles/runfiles.h"
-using bazel::tools::cpp::runfiles::Runfiles;
-#endif
+#include "UTF8Util.hpp"
 
 using namespace opencc;
-
-namespace {
 
 struct InternalData {
   const ConverterPtr converter;
 
   InternalData(const ConverterPtr& _converter) : converter(_converter) {}
-
-  static InternalData* NewInternalData(const std::string& configFileName,
-                                       const std::vector<std::string>& paths,
-                                       const char* argv0) {
-    try {
-      Config config;
-#ifdef BAZEL
-      std::string err;
-      std::unique_ptr<Runfiles> bazel_runfiles(
-          Runfiles::Create(argv0 != nullptr ? argv0 : "", &err));
-      if (bazel_runfiles != nullptr) {
-        std::vector<std::string> paths_with_runfiles = paths;
-        paths_with_runfiles.push_back(
-            bazel_runfiles->Rlocation("opencc~/data/config"));
-        paths_with_runfiles.push_back(
-            bazel_runfiles->Rlocation("opencc~/data/dictionary"));
-        paths_with_runfiles.push_back(
-            bazel_runfiles->Rlocation("_main/data/config"));
-        paths_with_runfiles.push_back(
-            bazel_runfiles->Rlocation("_main/data/dictionary"));
-        return new InternalData(
-            config.NewFromFile(configFileName, paths_with_runfiles, argv0));
-      }
-#endif
-      return new InternalData(config.NewFromFile(configFileName, paths, argv0));
-    } catch (Exception& ex) {
-      throw std::runtime_error(ex.what());
-    }
-  }
 };
 
-} // namespace
-
-SimpleConverter::SimpleConverter(const std::string& configFileName)
-    : SimpleConverter(configFileName, std::vector<std::string>()) {}
-
-SimpleConverter::SimpleConverter(const std::string& configFileName,
-                                 const std::vector<std::string>& paths)
-    : SimpleConverter(configFileName, paths, nullptr) {}
-
-SimpleConverter::SimpleConverter(const std::string& configFileName,
-                                 const std::vector<std::string>& paths,
-                                 const char* argv0)
-    : internalData(
-          InternalData::NewInternalData(configFileName, paths, argv0)) {}
+SimpleConverter::SimpleConverter(const std::string& configFileName) {
+  try {
+    Config config;
+    internalData = new InternalData(config.NewFromFile(configFileName));
+  } catch (Exception& ex) {
+    throw std::runtime_error(ex.what());
+  }
+}
 
 SimpleConverter::~SimpleConverter() { delete (InternalData*)internalData; }
 
@@ -92,12 +56,12 @@ std::string SimpleConverter::Convert(const std::string& input) const {
 }
 
 std::string SimpleConverter::Convert(const char* input) const {
-  return Convert(std::string(input));
+  return Convert(string(input));
 }
 
 std::string SimpleConverter::Convert(const char* input, size_t length) const {
   if (length == static_cast<size_t>(-1)) {
-    return Convert(std::string(input));
+    return Convert(string(input));
   } else {
     return Convert(UTF8Util::FromSubstr(input, length));
   }
@@ -117,22 +81,12 @@ size_t SimpleConverter::Convert(const char* input, size_t length,
   if (length == static_cast<size_t>(-1)) {
     return Convert(input, output);
   } else {
-    std::string trimmed = UTF8Util::FromSubstr(input, length);
+    string trimmed = UTF8Util::FromSubstr(input, length);
     return Convert(trimmed.c_str(), output);
   }
 }
 
-ConversionInspectionResult
-SimpleConverter::Inspect(const std::string& input) const {
-  try {
-    const InternalData* data = (InternalData*)internalData;
-    return data->converter->Inspect(input);
-  } catch (Exception& ex) {
-    throw std::runtime_error(ex.what());
-  }
-}
-
-static std::string cError;
+static string cError;
 
 opencc_t opencc_open_internal(const char* configFileName) {
   try {

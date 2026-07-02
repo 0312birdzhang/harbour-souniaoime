@@ -1,7 +1,7 @@
 /*
  * Open Chinese Convert
  *
- * Copyright 2015-2026 Carbo Kuo and contributors
+ * Copyright 2015 BYVoid <byvoid@byvoid.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,7 @@ protected:
     const size_t length = expected->Length();
     EXPECT_TRUE(length == actual->Length());
     for (size_t i = 0; i < length; i++) {
-      EXPECT_EQ(std::string(expected->At(i)), std::string(actual->At(i)))
-          << "i = " << i;
+      EXPECT_EQ(string(expected->At(i)), string(actual->At(i)));
     }
   }
 
@@ -49,7 +48,7 @@ TEST_F(ConversionChainTest, Convert) {
   const DictPtr& dictVariants = CreateDictForTaiwanVariants();
   const ConversionPtr& conversionVariants =
       ConversionPtr(new Conversion(dictVariants));
-  const std::list<ConversionPtr> conversions{conversion, conversionVariants};
+  const list<ConversionPtr> conversions{conversion, conversionVariants};
   const ConversionChainPtr& conversionChain =
       ConversionChainPtr(new ConversionChain(conversions));
   const SegmentsPtr& converted =

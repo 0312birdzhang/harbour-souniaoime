@@ -1,7 +1,7 @@
 /*
  * Open Chinese Convert
  *
- * Copyright 2010-2026 Carbo Kuo and contributors
+ * Copyright 2010-2014 BYVoid <byvoid@byvoid.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,6 @@
  * limitations under the License.
  */
 
-#include <algorithm>
-#include <cassert>
-#include <cstring>
-
 #include "BinaryDict.hpp"
 #include "Lexicon.hpp"
 
@@ -27,71 +23,62 @@ using namespace opencc;
 
 size_t BinaryDict::KeyMaxLength() const {
   size_t maxLength = 0;
-  for (const std::unique_ptr<DictEntry>& entry : *lexicon) {
-    maxLength = (std::max)(maxLength, entry->KeyLength());
+  for (const DictEntry* entry : *lexicon) {
+    maxLength = std::max(maxLength, entry->KeyLength());
   }
   return maxLength;
 }
 
 void BinaryDict::SerializeToFile(FILE* fp) const {
-  std::string keyBuf, valueBuf;
-  std::vector<size_t> keyOffsets, valueOffsets;
+  string keyBuf, valueBuf;
+  vector<size_t> keyOffsets, valueOffsets;
   size_t keyTotalLength = 0, valueTotalLength = 0;
-  ConstructBuffer(keyBuf, keyOffsets, keyTotalLength, valueBuf, valueOffsets,
-                  valueTotalLength);
-  // Number of items
-  size_t numItems = lexicon->Length();
-  fwrite(&numItems, sizeof(size_t), 1, fp);
+  ConstructBuffer(keyBuf, keyOffsets, keyTotalLength, valueBuf,
+                  valueOffsets, valueTotalLength);
+  // All size fields stored as uint32_t for cross-platform compatibility.
+  uint32_t numItems = static_cast<uint32_t>(lexicon->Length());
+  fwrite(&numItems, sizeof(uint32_t), 1, fp);
 
-  // Data
-  fwrite(&keyTotalLength, sizeof(size_t), 1, fp);
+  uint32_t u32KeyTotal = static_cast<uint32_t>(keyTotalLength);
+  fwrite(&u32KeyTotal, sizeof(uint32_t), 1, fp);
   fwrite(keyBuf.c_str(), sizeof(char), keyTotalLength, fp);
-  fwrite(&valueTotalLength, sizeof(size_t), 1, fp);
+  uint32_t u32ValueTotal = static_cast<uint32_t>(valueTotalLength);
+  fwrite(&u32ValueTotal, sizeof(uint32_t), 1, fp);
   fwrite(valueBuf.c_str(), sizeof(char), valueTotalLength, fp);
 
   size_t keyCursor = 0, valueCursor = 0;
-  for (const std::unique_ptr<DictEntry>& entry : *lexicon) {
-    // Number of values
-    size_t numValues = entry->NumValues();
-    fwrite(&numValues, sizeof(size_t), 1, fp);
-    // Key offset
-    size_t keyOffset = keyOffsets[keyCursor++];
-    fwrite(&keyOffset, sizeof(size_t), 1, fp);
-    // Values offset
+  for (const DictEntry* entry : *lexicon) {
+    uint32_t numValues = static_cast<uint32_t>(entry->NumValues());
+    fwrite(&numValues, sizeof(uint32_t), 1, fp);
+    uint32_t keyOffset = static_cast<uint32_t>(keyOffsets[keyCursor++]);
+    fwrite(&keyOffset, sizeof(uint32_t), 1, fp);
     for (size_t i = 0; i < numValues; i++) {
-      size_t valueOffset = valueOffsets[valueCursor++];
-      fwrite(&valueOffset, sizeof(size_t), 1, fp);
+      uint32_t valueOffset = static_cast<uint32_t>(valueOffsets[valueCursor++]);
+      fwrite(&valueOffset, sizeof(uint32_t), 1, fp);
     }
   }
   assert(keyCursor == numItems);
 }
 
 BinaryDictPtr BinaryDict::NewFromFile(FILE* fp) {
-  long savedOffset = ftell(fp);
-  fseek(fp, 0L, SEEK_END);
-  long offsetBoundLong = ftell(fp) - savedOffset;
-  fseek(fp, savedOffset, SEEK_SET);
-  assert(offsetBoundLong >= 0);
-  size_t offsetBound = static_cast<size_t>(offsetBoundLong);
-
   BinaryDictPtr dict(new BinaryDict(LexiconPtr(new Lexicon)));
 
-  // Number of items
-  size_t numItems;
-  size_t unitsRead = fread(&numItems, sizeof(size_t), 1, fp);
+  // Read uint32 fields; the .ocd files were generated on a 32-bit platform
+  // where sizeof(size_t) == 4, so on 64-bit we must read fixed 4-byte values.
+
+  uint32_t numItems32;
+  size_t unitsRead = fread(&numItems32, sizeof(uint32_t), 1, fp);
   if (unitsRead != 1) {
     throw InvalidFormat("Invalid OpenCC binary dictionary (numItems)");
   }
+  size_t numItems = numItems32;
 
-  // Keys
-  size_t keyTotalLength;
-  unitsRead = fread(&keyTotalLength, sizeof(size_t), 1, fp);
+  uint32_t keyTotalLength32;
+  unitsRead = fread(&keyTotalLength32, sizeof(uint32_t), 1, fp);
   if (unitsRead != 1) {
     throw InvalidFormat("Invalid OpenCC binary dictionary (keyTotalLength)");
   }
-  if (keyTotalLength > offsetBound) {
-    throw InvalidFormat("Invalid OpenCC binary dictionary (keyTotalLength exceeds file size)");
-  }
+  size_t keyTotalLength = keyTotalLength32;
   dict->keyBuffer.resize(keyTotalLength);
   unitsRead = fread(const_cast<char*>(dict->keyBuffer.c_str()), sizeof(char),
                     keyTotalLength, fp);
@@ -99,16 +86,12 @@ BinaryDictPtr BinaryDict::NewFromFile(FILE* fp) {
     throw InvalidFormat("Invalid OpenCC binary dictionary (keyBuffer)");
   }
 
-  // Values
-  size_t valueTotalLength;
-  unitsRead = fread(&valueTotalLength, sizeof(size_t), 1, fp);
+  uint32_t valueTotalLength32;
+  unitsRead = fread(&valueTotalLength32, sizeof(uint32_t), 1, fp);
   if (unitsRead != 1) {
     throw InvalidFormat("Invalid OpenCC binary dictionary (valueTotalLength)");
   }
-  if (valueTotalLength > offsetBound) {
-    throw InvalidFormat(
-        "Invalid OpenCC binary dictionary (valueTotalLength exceeds file size)");
-  }
+  size_t valueTotalLength = valueTotalLength32;
   dict->valueBuffer.resize(valueTotalLength);
   unitsRead = fread(const_cast<char*>(dict->valueBuffer.c_str()), sizeof(char),
                     valueTotalLength, fp);
@@ -116,98 +99,81 @@ BinaryDictPtr BinaryDict::NewFromFile(FILE* fp) {
     throw InvalidFormat("Invalid OpenCC binary dictionary (valueBuffer)");
   }
 
-  // Offsets
   for (size_t i = 0; i < numItems; i++) {
-    // Number of values
-    size_t numValues;
-    unitsRead = fread(&numValues, sizeof(size_t), 1, fp);
+    uint32_t numValues32;
+    unitsRead = fread(&numValues32, sizeof(uint32_t), 1, fp);
     if (unitsRead != 1) {
       throw InvalidFormat("Invalid OpenCC binary dictionary (numValues)");
     }
-    // Key offset
-    size_t keyOffset;
-    unitsRead = fread(&keyOffset, sizeof(size_t), 1, fp);
-    if (unitsRead != 1 || keyOffset >= keyTotalLength) {
+    size_t numValues = numValues32;
+
+    uint32_t keyOffset32;
+    unitsRead = fread(&keyOffset32, sizeof(uint32_t), 1, fp);
+    if (unitsRead != 1) {
       throw InvalidFormat("Invalid OpenCC binary dictionary (keyOffset)");
     }
-    const char* keyStart = dict->keyBuffer.c_str() + keyOffset;
-    if (memchr(keyStart, '\0', keyTotalLength - keyOffset) == nullptr) {
-      throw InvalidFormat(
-          "Invalid OpenCC binary dictionary (key not null-terminated)");
-    }
-    std::string key = keyStart;
-    // Value offset
-    std::vector<std::string> values;
+    const char* key = dict->keyBuffer.c_str() + keyOffset32;
+
+    vector<const char*> values;
     for (size_t j = 0; j < numValues; j++) {
-      size_t valueOffset;
-      unitsRead = fread(&valueOffset, sizeof(size_t), 1, fp);
-      if (unitsRead != 1 || valueOffset >= valueTotalLength) {
+      uint32_t valueOffset32;
+      unitsRead = fread(&valueOffset32, sizeof(uint32_t), 1, fp);
+      if (unitsRead != 1) {
         throw InvalidFormat("Invalid OpenCC binary dictionary (valueOffset)");
       }
-      const char* valueStart = dict->valueBuffer.c_str() + valueOffset;
-      if (memchr(valueStart, '\0', valueTotalLength - valueOffset) == nullptr) {
-        throw InvalidFormat(
-            "Invalid OpenCC binary dictionary (value not null-terminated)");
-      }
-      values.push_back(valueStart);
+      const char* value = dict->valueBuffer.c_str() + valueOffset32;
+      values.push_back(value);
     }
-    DictEntry* entry = DictEntryFactory::New(key, values);
+    PtrDictEntry* entry = new PtrDictEntry(key, values);
     dict->lexicon->Add(entry);
   }
 
   return dict;
 }
 
-void BinaryDict::ConstructBuffer(std::string& keyBuf,
-                                 std::vector<size_t>& keyOffset,
-                                 size_t& keyTotalLength, std::string& valueBuf,
-                                 std::vector<size_t>& valueOffset,
+void BinaryDict::ConstructBuffer(string& keyBuf, vector<size_t>& keyOffset,
+                                 size_t& keyTotalLength, string& valueBuf,
+                                 vector<size_t>& valueOffset,
                                  size_t& valueTotalLength) const {
   keyTotalLength = 0;
   valueTotalLength = 0;
   // Calculate total length
-  for (const std::unique_ptr<DictEntry>& entry : *lexicon) {
+  for (const DictEntry* entry : *lexicon) {
     keyTotalLength += entry->KeyLength() + 1;
     assert(entry->NumValues() != 0);
     if (entry->NumValues() == 1) {
-      const auto* svEntry =
-          static_cast<const SingleValueDictEntry*>(entry.get());
-      valueTotalLength += svEntry->Value().length() + 1;
+      const auto* svEntry = static_cast<const SingleValueDictEntry*>(entry);
+      valueTotalLength += strlen(svEntry->Value()) + 1;
     } else {
-      const auto* mvEntry =
-          static_cast<const MultiValueDictEntry*>(entry.get());
+      const auto* mvEntry = static_cast<const MultiValueDictEntry*>(entry);
       for (const auto& value : mvEntry->Values()) {
-        valueTotalLength += value.length() + 1;
+        valueTotalLength += strlen(value) + 1;
       }
     }
   }
   // Write keys and values to buffers
   keyBuf.resize(keyTotalLength, '\0');
   valueBuf.resize(valueTotalLength, '\0');
-  char* pKeyBuffer = keyBuf.data();
-  char* pValueBuffer = valueBuf.data();
-  for (const std::unique_ptr<DictEntry>& entry : *lexicon) {
-    const std::string& key = entry->Key();
-    strcpy(pKeyBuffer, key.c_str());
-    keyOffset.push_back(pKeyBuffer - keyBuf.data());
-    pKeyBuffer += key.length() + 1;
+  char* pKeyBuffer = const_cast<char*>(keyBuf.c_str());
+  char* pValueBuffer = const_cast<char*>(valueBuf.c_str());
+  for (const DictEntry* entry : *lexicon) {
+    strcpy(pKeyBuffer, entry->Key());
+    keyOffset.push_back(pKeyBuffer - keyBuf.c_str());
+    pKeyBuffer += entry->KeyLength() + 1;
     if (entry->NumValues() == 1) {
-      const auto* svEntry =
-          static_cast<const SingleValueDictEntry*>(entry.get());
-      const std::string& val = svEntry->Value();
-      strcpy(pValueBuffer, val.c_str());
-      valueOffset.push_back(pValueBuffer - valueBuf.data());
-      pValueBuffer += val.length() + 1;
+      const auto* svEntry = static_cast<const SingleValueDictEntry*>(entry);
+      strcpy(pValueBuffer, svEntry->Value());
+      valueOffset.push_back(pValueBuffer - valueBuf.c_str());
+      pValueBuffer += strlen(svEntry->Value()) + 1;
     } else {
-      const auto* mvEntry =
-          static_cast<const MultiValueDictEntry*>(entry.get());
+      const auto* mvEntry = static_cast<const MultiValueDictEntry*>(entry);
       for (const auto& value : mvEntry->Values()) {
-        strcpy(pValueBuffer, value.c_str());
-        valueOffset.push_back(pValueBuffer - valueBuf.data());
-        pValueBuffer += value.length() + 1;
+        strcpy(pValueBuffer, value);
+        valueOffset.push_back(pValueBuffer - valueBuf.c_str());
+        pValueBuffer += strlen(value) + 1;
       }
     }
   }
-  assert(keyBuf.data() + keyTotalLength == pKeyBuffer);
-  assert(valueBuf.data() + valueTotalLength == pValueBuffer);
+  assert(keyBuf.c_str() + keyTotalLength == pKeyBuffer);
+  assert(valueBuf.c_str() + valueTotalLength == pValueBuffer);
 }

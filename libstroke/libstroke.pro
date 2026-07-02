@@ -17,11 +17,17 @@ HEADERS += \
     src/plugin.h \
     src/stroke.h
 
+RESOURCES += src/stroke.qrc
+
 DISTFILES += qmldir
+
+data.files += data/dict.txt
+data.path = /usr/share/harbour-souniaoime/data
 
 qmldir.files = qmldir
 qmldir.path = $$[QT_INSTALL_QML]/$$replace(uri, \., /)
+target.path = $$[QT_INSTALL_QML]/$$replace(uri, \., /)
 
-INSTALLS += qmldir
+INSTALLS += target qmldir data
 
 CONFIG *= thread

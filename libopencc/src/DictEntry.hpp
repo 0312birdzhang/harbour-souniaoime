@@ -1,7 +1,7 @@
 /*
  * Open Chinese Convert
  *
- * Copyright 2010-2020 Carbo Kuo <byvoid@byvoid.com>
+ * Copyright 2010-2014 BYVoid <byvoid@byvoid.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,98 +19,97 @@
 #pragma once
 
 #include "Common.hpp"
-#include "Segments.hpp"
 #include "UTF8Util.hpp"
+#include "Segments.hpp"
 
 namespace opencc {
 /**
- * Key-values pair entry
- * @ingroup opencc_cpp_api
- */
+* Key-values pair entry
+* @ingroup opencc_cpp_api
+*/
 class OPENCC_EXPORT DictEntry {
 public:
   virtual ~DictEntry() {}
 
-  virtual std::string Key() const = 0;
+  virtual const char* Key() const = 0;
 
-  virtual std::vector<std::string> Values() const = 0;
+  virtual vector<const char*> Values() const = 0;
 
-  virtual std::string GetDefault() const = 0;
+  virtual const char* GetDefault() const = 0;
 
   virtual size_t NumValues() const = 0;
 
-  virtual std::string ToString() const = 0;
+  virtual string ToString() const = 0;
 
-  size_t KeyLength() const { return Key().length(); }
+  size_t KeyLength() const { return strlen(Key()); }
 
-  bool operator<(const DictEntry& that) const { return Key() < that.Key(); }
+  bool operator<(const DictEntry& that) const {
+    return strcmp(Key(), that.Key()) < 0;
+  }
 
-  bool operator==(const DictEntry& that) const { return Key() == that.Key(); }
+  bool operator==(const DictEntry& that) const {
+    return strcmp(Key(), that.Key()) == 0;
+  }
 
-  static bool UPtrLessThan(const std::unique_ptr<DictEntry>& a,
-                           const std::unique_ptr<DictEntry>& b) {
+  static bool PtrLessThan(const DictEntry* a, const DictEntry* b) {
     return *a < *b;
   }
 };
 
 class OPENCC_EXPORT NoValueDictEntry : public DictEntry {
 public:
-  NoValueDictEntry(const std::string& _key) : key(_key) {}
+  NoValueDictEntry(const string& _key) : key(_key) {}
 
   virtual ~NoValueDictEntry() {}
 
-  virtual std::string Key() const { return key; }
+  virtual const char* Key() const { return key.c_str(); }
 
-  virtual std::vector<std::string> Values() const {
-    return std::vector<std::string>();
-  }
+  virtual vector<const char*> Values() const { return vector<const char*>(); }
 
-  virtual std::string GetDefault() const { return key; }
+  virtual const char* GetDefault() const { return Key(); }
 
   virtual size_t NumValues() const { return 0; }
 
-  virtual std::string ToString() const { return key; }
+  virtual string ToString() const { return key; }
 
 private:
-  std::string key;
+  string key;
 };
 
 class OPENCC_EXPORT SingleValueDictEntry : public DictEntry {
 public:
-  virtual std::string Value() const = 0;
+  virtual const char* Value() const = 0;
 
-  virtual std::vector<std::string> Values() const {
-    return std::vector<std::string>{Value()};
+  virtual vector<const char*> Values() const {
+    return vector<const char*>{Value()};
   }
 
-  virtual std::string GetDefault() const { return Value(); }
+  virtual const char* GetDefault() const { return Value(); }
 
   virtual size_t NumValues() const { return 1; }
 
-  virtual std::string ToString() const {
-    return std::string(Key()) + "\t" + Value();
-  }
+  virtual string ToString() const { return string(Key()) + "\t" + Value(); }
 };
 
 class OPENCC_EXPORT StrSingleValueDictEntry : public SingleValueDictEntry {
 public:
-  StrSingleValueDictEntry(const std::string& _key, const std::string& _value)
+  StrSingleValueDictEntry(const string& _key, const string& _value)
       : key(_key), value(_value) {}
 
   virtual ~StrSingleValueDictEntry() {}
 
-  virtual std::string Key() const { return key; }
+  virtual const char* Key() const { return key.c_str(); }
 
-  virtual std::string Value() const { return value; }
+  virtual const char* Value() const { return value.c_str(); }
 
 private:
-  std::string key;
-  std::string value;
+  string key;
+  string value;
 };
 
 class OPENCC_EXPORT MultiValueDictEntry : public DictEntry {
 public:
-  virtual std::string GetDefault() const {
+  virtual const char* GetDefault() const {
     if (NumValues() > 0) {
       return Values().at(0);
     } else {
@@ -118,45 +117,68 @@ public:
     }
   }
 
-  virtual std::string ToString() const;
+  virtual string ToString() const;
 };
 
 class OPENCC_EXPORT StrMultiValueDictEntry : public MultiValueDictEntry {
 public:
-  StrMultiValueDictEntry(const std::string& _key,
-                         const std::vector<std::string>& _values)
+  StrMultiValueDictEntry(const string& _key, const vector<string>& _values)
       : key(_key), values(_values) {}
+
+  StrMultiValueDictEntry(const string& _key, const vector<const char*>& _values)
+      : key(_key) {
+    values.reserve(_values.size());
+    for (const char* str : _values) {
+      values.push_back(str);
+    }
+  }
 
   virtual ~StrMultiValueDictEntry() {}
 
-  virtual std::string Key() const { return key; }
+  virtual const char* Key() const { return key.c_str(); }
 
   size_t NumValues() const { return values.size(); }
 
-  std::vector<std::string> Values() const { return values; }
+  vector<const char*> Values() const {
+    vector<const char*> retsult;
+    for (const string& value : this->values) {
+      retsult.push_back(value.c_str());
+    }
+    return retsult;
+  }
 
 private:
-  std::string key;
-  std::vector<std::string> values;
+  string key;
+  vector<string> values;
+};
+
+class OPENCC_EXPORT PtrDictEntry : public MultiValueDictEntry {
+public:
+  PtrDictEntry(const char* _key, const vector<const char*>& _values)
+      : key(_key), values(_values) {}
+
+  virtual ~PtrDictEntry() {}
+
+  virtual const char* Key() const { return key; }
+
+  size_t NumValues() const { return values.size(); }
+
+  vector<const char*> Values() const { return values; }
+
+private:
+  const char* key;
+  vector<const char*> values;
 };
 
 class OPENCC_EXPORT DictEntryFactory {
 public:
-  static DictEntry* New(const std::string& key) {
-    return new NoValueDictEntry(key);
-  }
+  static DictEntry* New(const string& key) { return new NoValueDictEntry(key); }
 
-  static DictEntry* New(const std::string& key, const std::string& value) {
+  static DictEntry* New(const string& key, const string& value) {
     return new StrSingleValueDictEntry(key, value);
   }
 
-  static DictEntry* New(const std::string& key,
-                        const std::vector<std::string>& values) {
-    if (values.size() == 0) {
-      return New(key);
-    } else if (values.size() == 1) {
-      return New(key, values.front());
-    }
+  static DictEntry* New(const string& key, const vector<string>& values) {
     return new StrMultiValueDictEntry(key, values);
   }
 
@@ -164,10 +186,12 @@ public:
     if (entry->NumValues() == 0) {
       return new NoValueDictEntry(entry->Key());
     } else if (entry->NumValues() == 1) {
-      return new StrSingleValueDictEntry(entry->Key(), entry->Values().front());
+      const auto svEntry = static_cast<const SingleValueDictEntry*>(entry);
+      return new StrSingleValueDictEntry(svEntry->Key(), svEntry->Value());
     } else {
-      return new StrMultiValueDictEntry(entry->Key(), entry->Values());
+      const auto mvEntry = static_cast<const MultiValueDictEntry*>(entry);
+      return new StrMultiValueDictEntry(mvEntry->Key(), mvEntry->Values());
     }
   }
 };
-} // namespace opencc
+}

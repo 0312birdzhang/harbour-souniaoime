@@ -1,7 +1,7 @@
 /*
  * Open Chinese Convert
  *
- * Copyright 2015 Carbo Kuo <byvoid@byvoid.com>
+ * Copyright 2015 BYVoid <byvoid@byvoid.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include <functional>
 #include <unordered_map>
 
 #include "Common.hpp"
@@ -36,7 +35,7 @@ public:
 
   virtual ~PhraseExtract();
 
-  void Extract(const std::string& text) {
+  void Extract(const string& text) {
     SetFullText(text);
     ExtractSuffixes();
     CalculateFrequency();
@@ -50,7 +49,7 @@ public:
     SelectWords();
   }
 
-  void SetFullText(const std::string& fullText) {
+  void SetFullText(const string& fullText) {
     utf8FullText = UTF8StringSlice(fullText.c_str());
   }
 
@@ -77,25 +76,23 @@ public:
   }
 
   // PreCalculationFilter is called after frequencies statistics.
-  void SetPreCalculationFilter(
-      const std::function<bool(const PhraseExtract&,
-                               const UTF8StringSlice8Bit&)>& filter) {
+  void SetPreCalculationFilter(const std::function<
+      bool(const PhraseExtract&, const UTF8StringSlice8Bit&)>& filter) {
     preCalculationFilter = filter;
   }
 
-  void SetPostCalculationFilter(
-      const std::function<bool(const PhraseExtract&,
-                               const UTF8StringSlice8Bit&)>& filter) {
+  void SetPostCalculationFilter(const std::function<
+      bool(const PhraseExtract&, const UTF8StringSlice8Bit&)>& filter) {
     postCalculationFilter = filter;
   }
 
-  void ReleaseSuffixes() { std::vector<UTF8StringSlice8Bit>().swap(suffixes); }
+  void ReleaseSuffixes() { vector<UTF8StringSlice8Bit>().swap(suffixes); }
 
-  void ReleasePrefixes() { std::vector<UTF8StringSlice8Bit>().swap(prefixes); }
+  void ReleasePrefixes() { vector<UTF8StringSlice8Bit>().swap(prefixes); }
 
-  const std::vector<UTF8StringSlice8Bit>& Words() const { return words; }
+  const vector<UTF8StringSlice8Bit>& Words() const { return words; }
 
-  const std::vector<UTF8StringSlice8Bit>& WordCandidates() const {
+  const vector<UTF8StringSlice8Bit>& WordCandidates() const {
     return wordCandidates;
   }
 
@@ -158,9 +155,8 @@ private:
 
   double CalculateCohesion(const UTF8StringSlice8Bit& wordCandidate) const;
 
-  double CalculateEntropy(
-      const std::unordered_map<UTF8StringSlice8Bit, size_t,
-                               UTF8StringSlice8Bit::Hasher>& choices) const;
+  double CalculateEntropy(const std::unordered_map<
+      UTF8StringSlice8Bit, size_t, UTF8StringSlice8Bit::Hasher>& choices) const;
 
   LengthType wordMinLength;
   LengthType wordMaxLength;
@@ -183,10 +179,10 @@ private:
   UTF8StringSlice utf8FullText;
   size_t totalOccurrence;
   double logTotalOccurrence;
-  std::vector<UTF8StringSlice8Bit> prefixes;
-  std::vector<UTF8StringSlice8Bit> suffixes;
-  std::vector<UTF8StringSlice8Bit> wordCandidates;
-  std::vector<UTF8StringSlice8Bit> words;
+  vector<UTF8StringSlice8Bit> prefixes;
+  vector<UTF8StringSlice8Bit> suffixes;
+  vector<UTF8StringSlice8Bit> wordCandidates;
+  vector<UTF8StringSlice8Bit> words;
   DictType* signals;
 
   friend class PhraseExtractTest;

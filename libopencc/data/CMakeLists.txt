@@ -1,7 +1,6 @@
-find_package(PythonInterp REQUIRED)
-
 set(OPENCC_DICT_BIN opencc_dict)
-set(DICT_REVERSE_BIN "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/reverse.py")
+set(DICT_MERGE_BIN /usr/bin/python3 ${CMAKE_CURRENT_SOURCE_DIR}/scripts/merge.py)
+set(DICT_REVERSE_BIN /usr/bin/python3 ${CMAKE_CURRENT_SOURCE_DIR}/scripts/reverse.py)
 set(DICT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dictionary)
 set(DICT_GENERATED_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -11,28 +10,26 @@ set(
   STPhrases
   TSCharacters
   TSPhrases
-  TWPhrases
-  TWPhrasesRev
   TWVariants
   TWVariantsRevPhrases
-  HKVariants
-  HKVariantsRevPhrases
   JPVariants
-  JPShinjitaiCharacters
-  JPShinjitaiPhrases
+  HKVariants
+  HKVariantsPhrases
+  HKVariantsRevPhrases
 )
 
 set(
   DICTS_GENERATED
+  TWPhrases
+  TWPhrasesRev
   TWVariantsRev
   HKVariantsRev
-  JPVariantsRev
 )
 
 set(DICTS ${DICTS_RAW} ${DICTS_GENERATED})
 
 foreach(DICT ${DICTS})
-  set(DICT_TARGETS ${DICT_TARGETS} ${DICT}.ocd2)
+  set(DICT_TARGETS ${DICT_TARGETS} ${DICT}.ocd)
 endforeach(DICT)
 
 add_custom_target(
@@ -51,6 +48,17 @@ foreach(DICT ${DICTS_GENERATED})
 endforeach(DICT)
 
 set(
+  DICT_TWPhrases_GENERATING_INPUT
+  ${DICT_DIR}/TWPhrasesIT.txt
+  ${DICT_DIR}/TWPhrasesName.txt
+  ${DICT_DIR}/TWPhrasesOther.txt
+)
+set(
+  DICT_TWPhrases_GENERATING_COMMAND
+  ${DICT_MERGE_BIN} ${DICT_TWPhrases_GENERATING_INPUT} TWPhrases.txt
+)
+
+set(
   DICT_TWVariantsRev_GENERATING_INPUT
   ${DICT_DIR}/TWVariants.txt
 )
@@ -60,21 +68,21 @@ set(
 )
 
 set(
+  DICT_TWPhrasesRev_GENERATING_INPUT
+  ${DICT_GENERATED_DIR}/TWPhrases.txt
+)
+set(
+  DICT_TWPhrasesRev_GENERATING_COMMAND
+  ${DICT_REVERSE_BIN} ${DICT_TWPhrasesRev_GENERATING_INPUT} TWPhrasesRev.txt
+)
+
+set(
   DICT_HKVariantsRev_GENERATING_INPUT
   ${DICT_DIR}/HKVariants.txt
 )
 set(
   DICT_HKVariantsRev_GENERATING_COMMAND
   ${DICT_REVERSE_BIN} ${DICT_HKVariantsRev_GENERATING_INPUT} HKVariantsRev.txt
-)
-
-set(
-  DICT_JPVariantsRev_GENERATING_INPUT
-  ${DICT_DIR}/JPVariants.txt
-)
-set(
-  DICT_JPVariantsRev_GENERATING_COMMAND
-  ${DICT_REVERSE_BIN} ${DICT_JPVariantsRev_GENERATING_INPUT} JPVariantsRev.txt
 )
 
 foreach(DICT ${DICTS_GENERATED})
@@ -95,75 +103,55 @@ foreach(DICT ${DICTS_GENERATED})
   )
 endforeach(DICT)
 
-add_custom_target(
-  copy_libopencc_to_dir_of_opencc_dict
-  COMMENT
-    "Copying libopencc to directory of opencc_dict"
-  COMMAND
-    ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:libopencc>" "$<TARGET_FILE_DIR:${OPENCC_DICT_BIN}>"
-)
-if (WIN32)
-  set(DICT_WIN32_DEPENDS copy_libopencc_to_dir_of_opencc_dict)
-else()
-  set(DICT_WIN32_DEPENDS)
-endif()
-
 foreach(DICT ${DICTS})
   add_custom_command(
     OUTPUT
-      ${DICT}.ocd2
+      ${DICT}.ocd
     COMMENT
-      "Building ${DICT}.ocd2"
+      "Building ${DICT}.ocd"
+    COMMAND
+      ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:libopencc>" "$<TARGET_FILE_DIR:${OPENCC_DICT_BIN}>"
     COMMAND
       ${OPENCC_DICT_BIN}
         --input ${DICT_${DICT}_INPUT}
-        --output ${DICT}.ocd2
+        --output ${DICT}.ocd
         --from text
-        --to ocd2
+        --to ocd
     DEPENDS
-      ${DICT_WIN32_DEPENDS}
       ${OPENCC_DICT_BIN}
       ${DICT_${DICT}_INPUT}
   )
 
-  if(OPENCC_ENABLE_INSTALL)
   install(
     FILES
-      ${DICT_GENERATED_DIR}/${DICT}.ocd2
+      ${DICT_GENERATED_DIR}/${DICT}.ocd
     DESTINATION
       ${DIR_SHARE_OPENCC}
   )
-  endif()
 
   set_directory_properties(
     PROPERTIES
       ADDITIONAL_MAKE_CLEAN_FILES
-        "${DICT_GENERATED_DIR}/${DICT}.ocd2"
+        "${DICT_GENERATED_DIR}/${DICT}.ocd"
   )
 endforeach(DICT)
 
 set(CONFIG_FILES
-  config/hk2s.json
-  config/hk2t.json
-  config/jp2t.json
-  config/s2hk.json
   config/s2t.json
+  config/t2s.json
   config/s2tw.json
   config/s2twp.json
-  config/t2hk.json
-  config/t2jp.json
-  config/t2s.json
-  config/t2tw.json
   config/tw2s.json
   config/tw2sp.json
-  config/tw2t.json
+  config/t2tw.json
+  config/s2hk.json
+  config/hk2s.json
+  config/t2hk.json
 )
 
-if(OPENCC_ENABLE_INSTALL)
 install(
   FILES
     ${CONFIG_FILES}
   DESTINATION
     ${DIR_SHARE_OPENCC}
 )
-endif()

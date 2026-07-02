@@ -1,9 +1,9 @@
 import QtQuick 2.0
 import ".."
 
-StrokeLayout {
+KeyboardLayout {
     type: "china_stroke"
-    inputMode: "simplified"
+    inputMode: "stroke"
     
     KeyboardRow {
         visible: attributes.inSymView

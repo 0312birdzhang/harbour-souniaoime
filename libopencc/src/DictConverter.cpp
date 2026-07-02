@@ -1,7 +1,7 @@
 /*
  * Open Chinese Convert
  *
- * Copyright 2010-2026 Carbo Kuo and contributors
+ * Copyright 2010-2017 BYVoid <byvoid@byvoid.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,69 +16,42 @@
  * limitations under the License.
  */
 
-#include "DictConverter.hpp"
-#include "Exception.hpp"
-#include "Lexicon.hpp"
-#include "MarisaDict.hpp"
-#include "TextDict.hpp"
-#include "UTF8Util.hpp"
-
-#ifdef ENABLE_DARTS
 #include "DartsDict.hpp"
-#endif
+#include "DictConverter.hpp"
+#include "TextDict.hpp"
 
 using namespace opencc;
 
-DictPtr LoadDictionary(const std::string& format,
-                       const std::string& inputFileName) {
+DictPtr LoadDictionary(const string& format, const string& inputFileName) {
   if (format == "text") {
-    FILE* fp =
-#ifdef _MSC_VER
-        _wfopen(UTF8Util::GetPlatformString(inputFileName).c_str(), L"r")
-#else
-        fopen(UTF8Util::GetPlatformString(inputFileName).c_str(), "r")
-#endif
-        ;
-    if (!fp) {
-      throw FileNotFound(inputFileName);
-    }
-    DictPtr dict = TextDict::NewFromFile(fp);
-    fclose(fp);
-    return dict;
+    return SerializableDict::NewFromFile<TextDict>(inputFileName);
   } else if (format == "ocd") {
-#ifdef ENABLE_DARTS
     return SerializableDict::NewFromFile<DartsDict>(inputFileName);
-#endif
-  } else if (format == "ocd2") {
-    return SerializableDict::NewFromFile<MarisaDict>(inputFileName);
+  } else {
+    fprintf(stderr, "Unknown dictionary format: %s\n", format.c_str());
+    exit(2);
   }
-  fprintf(stderr, "Unknown dictionary format: %s\n", format.c_str());
-  exit(2);
   return nullptr;
 }
 
-SerializableDictPtr ConvertDict(const std::string& format, const DictPtr dict) {
+SerializableDictPtr ConvertDict(const string& format,
+                                      const DictPtr dict) {
   if (format == "text") {
     return TextDict::NewFromDict(*dict.get());
   } else if (format == "ocd") {
-#ifdef ENABLE_DARTS
     return DartsDict::NewFromDict(*dict.get());
-#endif
-  } else if (format == "ocd2") {
-    return MarisaDict::NewFromDict(*dict.get());
+  } else {
+    fprintf(stderr, "Unknown dictionary format: %s\n", format.c_str());
+    exit(2);
   }
-  fprintf(stderr, "Unknown dictionary format: %s\n", format.c_str());
-  exit(2);
   return nullptr;
 }
 
 namespace opencc {
-void ConvertDictionary(const std::string& inputFileName,
-                       const std::string& outputFileName,
-                       const std::string& formatFrom,
-                       const std::string& formatTo) {
+void ConvertDictionary(const string inputFileName, const string outputFileName,
+                       const string formatFrom, const string formatTo) {
   DictPtr dictFrom = LoadDictionary(formatFrom, inputFileName);
   SerializableDictPtr dictTo = ConvertDict(formatTo, dictFrom);
   dictTo->SerializeToFile(outputFileName);
 }
-} // namespace opencc
+}

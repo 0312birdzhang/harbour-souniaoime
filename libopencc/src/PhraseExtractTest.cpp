@@ -1,7 +1,7 @@
 /*
  * Open Chinese Convert
  *
- * Copyright 2015-2026 Carbo Kuo and contributors
+ * Copyright 2015 BYVoid <byvoid@byvoid.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,8 @@
  * limitations under the License.
  */
 
-#include <cmath>
-
 #include "PhraseExtract.hpp"
 #include "TestUtils.hpp"
-#include "TestUtilsUTF8.hpp"
 
 namespace opencc {
 
@@ -32,18 +29,18 @@ protected:
       : siShi(utf8("四是四十是十十四是十四四十是四十")),
         punctuation(utf8("一.二.三")) {}
 
-  const std::vector<UTF8StringSlice8Bit>& Suffixes() const {
+  const vector<UTF8StringSlice8Bit>& Suffixes() const {
     return phraseExtract.suffixes;
   }
 
-  const std::vector<UTF8StringSlice8Bit>& Prefixes() const {
+  const vector<UTF8StringSlice8Bit>& Prefixes() const {
     return phraseExtract.prefixes;
   }
 
   PhraseExtract phraseExtract;
 
-  const std::string siShi;
-  const std::string punctuation;
+  const string siShi;
+  const string punctuation;
 };
 
 TEST_F(PhraseExtractTest, ExtractSuffixes) {
@@ -53,7 +50,7 @@ TEST_F(PhraseExtractTest, ExtractSuffixes) {
   phraseExtract.SetFullText(siShi);
   phraseExtract.ExtractSuffixes();
   EXPECT_EQ(
-      std::vector<UTF8StringSlice8Bit>(
+      vector<UTF8StringSlice8Bit>(
           {"十", "十十四是", "十四四十", "十四是十", "十是十十", "十是四十",
            "四十", "四十是十", "四十是四", "四四十是", "四是十四", "四是四十",
            "是十十四", "是十四四", "是四十", "是四十是"}),
@@ -67,7 +64,7 @@ TEST_F(PhraseExtractTest, ExtractPrefixes) {
   phraseExtract.SetFullText(siShi);
   phraseExtract.ExtractPrefixes();
   EXPECT_EQ(
-      std::vector<UTF8StringSlice8Bit>(
+      vector<UTF8StringSlice8Bit>(
           {"十是十十", "十四四十", "十是四十", "四是四十", "四十是十",
            "十四是十", "四", "是十十四", "四是十四", "是十四四", "四十是四",
            "四是四", "四四十是", "是四十是", "四是", "十十四是"}),
@@ -100,12 +97,12 @@ TEST_F(PhraseExtractTest, ExtractWordCandidates) {
   phraseExtract.SetWordMaxLength(3);
   phraseExtract.SetFullText(siShi);
   phraseExtract.ExtractWordCandidates();
-  EXPECT_EQ(std::vector<UTF8StringSlice8Bit>(
-                {"十",     "四",     "是",     "四十",   "十四",   "十是",
-                 "四十是", "四是",   "是十",   "是四",   "是四十", "十十",
-                 "十十四", "十四四", "十四是", "十是十", "十是四", "四四",
-                 "四四十", "四是十", "四是四", "是十十", "是十四"}),
-            phraseExtract.WordCandidates());
+  EXPECT_EQ(
+      vector<UTF8StringSlice8Bit>(
+          {"十", "四", "是", "四十", "十四", "十是", "四十是", "四是", "是十",
+           "是四", "是四十", "十十", "十十四", "十四四", "十四是", "十是十",
+           "十是四", "四四", "四四十", "四是十", "四是四", "是十十", "是十四"}),
+      phraseExtract.WordCandidates());
 }
 
 TEST_F(PhraseExtractTest, CalculateCohesions) {
@@ -158,14 +155,14 @@ TEST_F(PhraseExtractTest, SelectWords) {
   phraseExtract.SetWordMaxLength(3);
   phraseExtract.SetFullText(siShi);
   phraseExtract.SetPostCalculationFilter(
-      [](const PhraseExtract& p, const UTF8StringSlice8Bit& word) {
-        return p.Frequency(word) == 1;
+      [](const PhraseExtract& phraseExtract, const UTF8StringSlice8Bit& word) {
+        return phraseExtract.Frequency(word) == 1;
       });
   phraseExtract.SelectWords();
-  EXPECT_EQ(std::vector<UTF8StringSlice8Bit>({"十", "四", "是", "四十", "十四",
-                                              "十是", "四十是", "四是", "是十",
-                                              "是四", "是四十"}),
-            phraseExtract.Words());
+  EXPECT_EQ(
+      vector<UTF8StringSlice8Bit>({"十", "四", "是", "四十", "十四", "十是",
+                                   "四十是", "四是", "是十", "是四", "是四十"}),
+      phraseExtract.Words());
 }
 
 TEST_F(PhraseExtractTest, Punctuation) {
@@ -175,7 +172,7 @@ TEST_F(PhraseExtractTest, Punctuation) {
   phraseExtract.SetFullText(punctuation);
   phraseExtract.ExtractPrefixes();
   EXPECT_EQ(
-      std::vector<UTF8StringSlice8Bit>({"一.", ".二.", "一", "二.三", "一.二"}),
+      vector<UTF8StringSlice8Bit>({"一.", ".二.", "一", "二.三", "一.二"}),
       Prefixes());
 }
 

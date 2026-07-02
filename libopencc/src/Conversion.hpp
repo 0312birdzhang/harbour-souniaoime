@@ -1,7 +1,7 @@
 /*
  * Open Chinese Convert
  *
- * Copyright 2010-2014 Carbo Kuo <byvoid@byvoid.com>
+ * Copyright 2010-2014 BYVoid <byvoid@byvoid.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,24 +22,19 @@
 #include "Segmentation.hpp"
 
 namespace opencc {
-class PrefixMatch;
-
 /**
- * Conversion interface
- * @ingroup opencc_cpp_api
- */
+* Conversion interface
+* @ingroup opencc_cpp_api
+*/
 class OPENCC_EXPORT Conversion {
 public:
-  Conversion(DictPtr _dict);
+  Conversion(DictPtr _dict) : dict(_dict) {}
 
   // Convert single phrase
-  std::string Convert(const std::string& phrase) const;
+  string Convert(const string& phrase) const;
 
   // Convert single phrase
-  std::string Convert(const char* phrase) const;
-
-  // Convert single phrase and append it to output.
-  void AppendConverted(const char* phrase, std::string* output) const;
+  string Convert(const char* phrase) const;
 
   // Convert segmented text
   SegmentsPtr Convert(const SegmentsPtr& input) const;
@@ -48,6 +43,5 @@ public:
 
 private:
   const DictPtr dict;
-  const std::shared_ptr<PrefixMatch> prefixMatch;
 };
-} // namespace opencc
+}

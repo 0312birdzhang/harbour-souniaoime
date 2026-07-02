@@ -1,7 +1,7 @@
 /*
  * Open Chinese Convert
  *
- * Copyright 2010-2026 Carbo Kuo and contributors
+ * Copyright 2010-2014 BYVoid <byvoid@byvoid.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,10 @@
  */
 
 #include "MaxMatchSegmentation.hpp"
-#include "PrefixMatch.hpp"
-#include "Segments.hpp"
-#include "UTF8Util.hpp"
 
 using namespace opencc;
 
-MaxMatchSegmentation::MaxMatchSegmentation(const DictPtr _dict)
-    : dict(_dict), prefixMatch(new PrefixMatch(_dict)) {}
-
-SegmentsPtr MaxMatchSegmentation::Segment(const std::string& text) const {
+SegmentsPtr MaxMatchSegmentation::Segment(const string& text) const {
   SegmentsPtr segments(new Segments);
   const char* segStart = text.c_str();
   size_t segLength = 0;
@@ -36,23 +30,16 @@ SegmentsPtr MaxMatchSegmentation::Segment(const std::string& text) const {
       segLength = 0;
     }
   };
-  const char* textEnd = text.c_str() + text.length();
   for (const char* pstr = text.c_str(); *pstr != '\0';) {
-    size_t remainingLength = textEnd - pstr;
-    const PrefixMatch::Match matched =
-        prefixMatch->MatchPrefix(pstr, remainingLength);
+    const Optional<const DictEntry*>& matched = dict->MatchPrefix(pstr);
     size_t matchedLength;
-    if (!matched.matched) {
+    if (matched.IsNull()) {
       matchedLength = UTF8Util::NextCharLength(pstr);
-      // Ensure we don't advance beyond the string boundary
-      if (matchedLength > remainingLength) {
-        matchedLength = remainingLength;
-      }
       segLength += matchedLength;
     } else {
       clearBuffer();
-      matchedLength = matched.keyLength;
-      segments->AddSegment(*matched.key);
+      matchedLength = matched.Get()->KeyLength();
+      segments->AddSegment(matched.Get()->Key());
       segStart = pstr + matchedLength;
     }
     pstr += matchedLength;
