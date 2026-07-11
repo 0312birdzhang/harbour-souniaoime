@@ -24,8 +24,6 @@ InputHandler {
         path: "/app/xyz.birdzhang.ime"
         property int pageSize: 20
         property int fetchSize: 15
-        property bool traditional: false
-        property string convertModel: "s2twp"
     }
 
     onPinyinModeChanged: {
@@ -623,7 +621,6 @@ InputHandler {
         commit(preedit)
         gpy.candidates.clear();
         var tmppredictionsList = [];
-        // if config.traditional, need convert t2s
         if(!isDelete){
             var preText = MInputMethodQuick.surroundingText.substring(MInputMethodQuick.cursorPosition-1,
                                                                       MInputMethodQuick.cursorPosition);

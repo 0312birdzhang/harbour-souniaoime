@@ -2,7 +2,6 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     libgooglepinyin \
-    libopencc \
     libstroke \
     libwubi \
     miaomiaomiao

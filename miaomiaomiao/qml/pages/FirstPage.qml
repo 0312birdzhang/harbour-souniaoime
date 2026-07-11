@@ -4,17 +4,12 @@ import Nemo.Configuration 1.0
 
 Page{
 
-    ListModel{
-        id: convertModel
-    }
 
     ConfigurationGroup{
         id: config
         path: "/app/xyz.birdzhang.ime"
         property int pageSize: 20
         property int fetchSize: 15
-        property bool traditional: false
-        property string convertModel: "s2twp"
         property string wubiVersion: "wubi86"
     }
     SilicaFlickable{
@@ -163,24 +158,4 @@ Page{
         }
     }
 
-    Component.onCompleted: {
-        var models = ([{
-                           val:"s2t",
-                           name:"简体到繁体"
-                       },{
-                           val:"s2tw",
-                           name:"简体到台湾正体"
-                       },{
-                           val:"s2hk",
-                           name:"简体到香港繁体"
-                       },{
-                           val:"s2twp",
-                           name:"简体到台湾正体(常用)"
-                       }]);
-        for ( var i in models   ){
-            convertModel.append({"label": models[i].name,
-                                    "value": models[i].val
-                                });
-        }
-    }
 }
