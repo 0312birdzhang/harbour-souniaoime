@@ -15,6 +15,7 @@ Page{
         property int fetchSize: 15
         property bool traditional: false
         property string convertModel: "s2twp"
+        property string wubiVersion: "wubi86"
     }
     SilicaFlickable{
         anchors.fill: parent
@@ -123,6 +124,40 @@ Page{
                 valueText: value
                 onValueChanged: {
                     config.pageSize = value;
+                }
+            }
+
+            SectionHeader{
+                text: "五笔版本"
+                font.pixelSize: Theme.fontSizeMedium * 0.8
+            }
+
+            ComboBox {
+                id: wubiVersionCombo
+                width: parent.width
+                label: "版本"
+                description: "切换后立即生效，无需重启"
+                currentIndex: {
+                    switch (config.wubiVersion) {
+                    case "wubi98":  return 1
+                    case "wubixsj": return 2
+                    default:        return 0
+                    }
+                }
+
+                menu: ContextMenu {
+                    MenuItem {
+                        text: "86版"
+                        onClicked: config.wubiVersion = "wubi86"
+                    }
+                    MenuItem {
+                        text: "98版"
+                        onClicked: config.wubiVersion = "wubi98"
+                    }
+                    MenuItem {
+                        text: "新世纪版"
+                        onClicked: config.wubiVersion = "wubixsj"
+                    }
                 }
             }
         }

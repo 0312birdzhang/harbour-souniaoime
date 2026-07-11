@@ -25,6 +25,10 @@ maliit.path = /usr/share
 INSTALLS += target qml desktop icon maliit
 
 DISTFILES += \
-    maliit/plugins/com/jolla/SouniaoHandler.qml \
+    maliit/plugins/com/jolla/SouniaoPinyinHandler.qml \
+    maliit/plugins/com/jolla/SouniaoStrokeHandler.qml \
+    maliit/plugins/com/jolla/SouniaoWubiHandler.qml \
     maliit/plugins/com/jolla/layouts/zh_cn_souniaoime.qml \
+    maliit/plugins/com/jolla/layouts/zh_cn_souniaostroke.qml \
+    maliit/plugins/com/jolla/layouts/zh_cn_souniaowubi.qml \
     maliit/plugins/com/jolla/layouts/layouts_souniaoime.conf

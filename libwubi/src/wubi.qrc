@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>../data/dict.txt</file>
+        <file>../data/phrases.txt</file>
+        <file>../data/dict98.txt</file>
+        <file>../data/phrases98.txt</file>
+        <file>../data/dictxsj.txt</file>
+        <file>../data/phrasesxsj.txt</file>
+    </qresource>
+</RCC>

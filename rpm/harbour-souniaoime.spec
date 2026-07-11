@@ -76,3 +76,4 @@ rm -rf %{buildroot}
 %{_libdir}/qt5/qml/xyz/birdzhang/ime
 %{_libdir}/qt5/qml/xyz/birdzhang/opencc
 %{_libdir}/qt5/qml/xyz/birdzhang/stroke
+%{_libdir}/qt5/qml/xyz/birdzhang/wubi
