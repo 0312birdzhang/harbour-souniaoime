@@ -30,9 +30,6 @@ Allows you to use google pinyin and stroke to enter Simple Chinese character on 
 
 %prep
 %setup -q -n %{name}-%{version}
-sed -i \
-    -e 's:BIN python:BIN /usr/bin/python3:g' \
-    libopencc/data/CMakeLists.txt
 
 %build
 
@@ -44,7 +41,6 @@ sed -i \
 
 %install
 rm -rf %{buildroot}
-mkdir -p %{buildroot}/usr/lib64/cmake/opencc
 %qmake5_install
 
 # << install pre
@@ -54,12 +50,24 @@ mkdir -p %{buildroot}/usr/lib64/cmake/opencc
 
 %post
 # >> post
+if [ -d /usr/share/maliit/plugins/com/jolla/handlers ]; then
+  cd /usr/share/maliit/plugins/com/jolla/handlers \
+  && ln -sf ../SouniaoPinyinHandler.qml SouniaoPinyinHandler.qml \
+  && ln -sf ../SouniaoStrokeHandler.qml SouniaoStrokeHandler.qml \
+  && ln -sf ../SouniaoWubiHandler.qml SouniaoWubiHandler.qml
+fi
 systemctl-user restart maliit-server || true
 
 # << post
 
 %postun
 # >> postun
+if [ -d /usr/share/maliit/plugins/com/jolla/handlers ]; then
+  cd /usr/share/maliit/plugins/com/jolla/handlers \
+  && rm -rf SouniaoPinyinHandler.qml \
+  && rm -rf  SouniaoStrokeHandler.qml \
+  && rm -rf  SouniaoWubiHandler.qml
+fi
 systemctl-user restart maliit-server || true
 # << postun
 
@@ -74,6 +82,5 @@ rm -rf %{buildroot}
 %{_datadir}/icons/
 %{_datadir}/applications/%{name}.desktop
 %{_libdir}/qt5/qml/xyz/birdzhang/ime
-%{_libdir}/qt5/qml/xyz/birdzhang/opencc
 %{_libdir}/qt5/qml/xyz/birdzhang/stroke
 %{_libdir}/qt5/qml/xyz/birdzhang/wubi
