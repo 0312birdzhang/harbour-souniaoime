@@ -7,8 +7,8 @@ Name:       harbour-souniaoime
 
 %define __requires_exclude ^lib(xyz.birdzhang.ime|xyz.birdzhang.opencc).*$
 
-Version:    0.4.1
-Release:    2
+Version:    0.4.2
+Release:    1
 Summary:    PinyinIme for Sailfish OS
 License:    LGPLv2
 Group:      Qt/Qt
@@ -50,12 +50,11 @@ rm -rf %{buildroot}
 
 %post
 # >> post
-if [ -d /usr/share/maliit/plugins/com/jolla/handlers ]; then
-  cd /usr/share/maliit/plugins/com/jolla/handlers \
+mkdir -p /usr/share/maliit/plugins/com/jolla/handlers
+cd /usr/share/maliit/plugins/com/jolla/handlers \
   && ln -sf ../SouniaoPinyinHandler.qml SouniaoPinyinHandler.qml \
   && ln -sf ../SouniaoStrokeHandler.qml SouniaoStrokeHandler.qml \
   && ln -sf ../SouniaoWubiHandler.qml SouniaoWubiHandler.qml
-fi
 systemctl-user restart maliit-server || true
 
 # << post
@@ -76,10 +75,13 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%{_bindir}
-%{_datadir}/maliit
+%{_bindir}/harbour-souniaoime
+%{_datadir}/maliit/plugins/com/jolla/layouts/layouts_souniaoime.conf
+%{_datadir}/maliit/plugins/com/jolla/layouts/zh_cn_souniaoime.qml
+%{_datadir}/maliit/plugins/com/jolla/layouts/zh_cn_souniaostroke.qml
+%{_datadir}/maliit/plugins/com/jolla/layouts/zh_cn_souniaowubi.qml
 %{_datadir}/%{name}
-%{_datadir}/icons/
+%{_datadir}/icons/hicolor/86x86/apps/harbour-souniaoime.png
 %{_datadir}/applications/%{name}.desktop
 %{_libdir}/qt5/qml/xyz/birdzhang/ime
 %{_libdir}/qt5/qml/xyz/birdzhang/stroke
