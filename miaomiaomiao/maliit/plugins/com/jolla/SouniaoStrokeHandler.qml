@@ -201,7 +201,7 @@ InputHandler {
             handled = true
         } else if (pressedKey.text.length !== 0) {
             if (!keyboard.inSymView && isStrokeKey(pressedKey.text)) {
-                preedit += strokeToCode[pressedKey.text]
+                preedit += pressedKey.text
                 updateCandidates()
                 handled = true
             } else {
@@ -222,10 +222,18 @@ InputHandler {
         return text === "一" || text === "丨" || text === "丿" || text === "丶" || text === "乛"
     }
 
+    function strokeToCodes(strokes) {
+        var result = ""
+        for (var i = 0; i < strokes.length; i++) {
+            result += strokeToCode[strokes[i]] || ""
+        }
+        return result
+    }
+
     function updateCandidates() {
         predictionMode = false
         if (preedit.length > 0) {
-            strokeRecognition.recognize(preedit)
+            strokeRecognition.recognize(strokeToCodes(preedit))
             MInputMethodQuick.sendPreedit(preedit)
         } else {
             strokeRecognition.recognize("")
