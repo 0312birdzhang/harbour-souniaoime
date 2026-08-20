@@ -44,6 +44,12 @@ Allows you to use google pinyin and stroke to enter Simple Chinese character on 
 rm -rf %{buildroot}
 %qmake5_install
 
+mkdir -p %{buildroot}/usr/share/maliit/plugins/com/jolla/handlers
+cd %{buildroot}/usr/share/maliit/plugins/com/jolla/handlers \
+  && cp ../SouniaoPinyinHandler.qml SouniaoPinyinHandler.qml \
+  && cp ../SouniaoStrokeHandler.qml SouniaoStrokeHandler.qml \
+  && cp ../SouniaoWubiHandler.qml SouniaoWubiHandler.qml
+
 # << install pre
 
 # >> install post
@@ -51,23 +57,12 @@ rm -rf %{buildroot}
 
 %post
 # >> post
-mkdir -p /usr/share/maliit/plugins/com/jolla/handlers
-cd /usr/share/maliit/plugins/com/jolla/handlers \
-  && cp ../SouniaoPinyinHandler.qml SouniaoPinyinHandler.qml \
-  && cp ../SouniaoStrokeHandler.qml SouniaoStrokeHandler.qml \
-  && cp ../SouniaoWubiHandler.qml SouniaoWubiHandler.qml
 systemctl-user restart maliit-server || true
 
 # << post
 
 %postun
 # >> postun
-if [ -d /usr/share/maliit/plugins/com/jolla/handlers ]; then
-  cd /usr/share/maliit/plugins/com/jolla/handlers \
-  && rm -rf SouniaoPinyinHandler.qml \
-  && rm -rf SouniaoStrokeHandler.qml \
-  && rm -rf SouniaoWubiHandler.qml
-fi
 systemctl-user restart maliit-server || true
 # << postun
 
