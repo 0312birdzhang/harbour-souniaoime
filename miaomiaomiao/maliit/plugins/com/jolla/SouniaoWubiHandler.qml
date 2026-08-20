@@ -44,25 +44,6 @@ InputHandler {
             width: parent ? parent.width : 0
 
             TopItem {
-                visible: preedit !== ""
-                width: parent.width
-
-                Rectangle {
-                    anchors.fill: parent
-                    color: Theme.highlightBackgroundColor
-                    opacity: .05
-                }
-
-                Label {
-                    anchors.centerIn: parent
-                    horizontalAlignment: Text.AlignHCenter
-                    text: preedit
-                }
-
-                MouseArea { anchors.fill: parent }
-            }
-
-            TopItem {
                 id: listTopItem
                 width: parent.width
 
@@ -186,12 +167,6 @@ InputHandler {
         } else if (pressedKey.key === Qt.Key_Backspace && preedit !== "") {
             wubiRecognition.backspace()
             preedit = wubiRecognition.currentInput
-            handled = true
-        } else if (pressedKey.text === "符号") {
-            keyboard.inSymView = !keyboard.inSymView
-            handled = true
-        } else if (pressedKey.text === "五笔") {
-            keyboard.inSymView = false
             handled = true
         } else if (pressedKey.text.length !== 0) {
             if (!keyboard.inSymView && regLetter.test(pressedKey.text)) {

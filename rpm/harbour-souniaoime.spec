@@ -5,9 +5,10 @@ Name:       harbour-souniaoime
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 
-%define __requires_exclude ^lib(xyz.birdzhang.ime|xyz.birdzhang.opencc).*$
+%define __requires_exclude ^lib(xyz.birdzhang.ime|xyz.birdzhang.wubi|xyz.birdzhang.stroke).*$
+%global __provides_exclude_from %{_libdir}/qt5/qml/.*
 
-Version:    0.4.2
+Version:    0.4.3
 Release:    1
 Summary:    PinyinIme for Sailfish OS
 License:    LGPLv2
@@ -52,9 +53,9 @@ rm -rf %{buildroot}
 # >> post
 mkdir -p /usr/share/maliit/plugins/com/jolla/handlers
 cd /usr/share/maliit/plugins/com/jolla/handlers \
-  && ln -sf ../SouniaoPinyinHandler.qml SouniaoPinyinHandler.qml \
-  && ln -sf ../SouniaoStrokeHandler.qml SouniaoStrokeHandler.qml \
-  && ln -sf ../SouniaoWubiHandler.qml SouniaoWubiHandler.qml
+  && cp ../SouniaoPinyinHandler.qml SouniaoPinyinHandler.qml \
+  && cp ../SouniaoStrokeHandler.qml SouniaoStrokeHandler.qml \
+  && cp ../SouniaoWubiHandler.qml SouniaoWubiHandler.qml
 systemctl-user restart maliit-server || true
 
 # << post
@@ -64,8 +65,8 @@ systemctl-user restart maliit-server || true
 if [ -d /usr/share/maliit/plugins/com/jolla/handlers ]; then
   cd /usr/share/maliit/plugins/com/jolla/handlers \
   && rm -rf SouniaoPinyinHandler.qml \
-  && rm -rf  SouniaoStrokeHandler.qml \
-  && rm -rf  SouniaoWubiHandler.qml
+  && rm -rf SouniaoStrokeHandler.qml \
+  && rm -rf SouniaoWubiHandler.qml
 fi
 systemctl-user restart maliit-server || true
 # << postun
@@ -79,6 +80,9 @@ rm -rf %{buildroot}
 %{_datadir}/maliit/plugins/com/jolla/SouniaoPinyinHandler.qml
 %{_datadir}/maliit/plugins/com/jolla/SouniaoStrokeHandler.qml
 %{_datadir}/maliit/plugins/com/jolla/SouniaoWubiHandler.qml
+%{_datadir}/maliit/plugins/com/jolla/handlers/SouniaoPinyinHandler.qml
+%{_datadir}/maliit/plugins/com/jolla/handlers/SouniaoStrokeHandler.qml
+%{_datadir}/maliit/plugins/com/jolla/handlers/SouniaoWubiHandler.qml
 %{_datadir}/maliit/plugins/com/jolla/layouts/layouts_souniaoime.conf
 %{_datadir}/maliit/plugins/com/jolla/layouts/zh_cn_souniaoime.qml
 %{_datadir}/maliit/plugins/com/jolla/layouts/zh_cn_souniaostroke.qml
