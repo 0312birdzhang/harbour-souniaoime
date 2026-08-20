@@ -44,13 +44,6 @@ Allows you to use google pinyin and stroke to enter Simplified Chinese character
 rm -rf %{buildroot}
 %qmake5_install
 
-mkdir -p %{buildroot}/usr/share/maliit/plugins/com/jolla/handlers
-cd %{buildroot}/usr/share/maliit/plugins/com/jolla/handlers \
-  && cp ../SouniaoPinyinHandler.qml SouniaoPinyinHandler.qml \
-  && cp ../SouniaoStrokeHandler.qml SouniaoStrokeHandler.qml \
-  && cp ../SouniaoWubiHandler.qml SouniaoWubiHandler.qml
-rm %{buildroot}/usr/share/maliit/plugins/com/jolla/handlers/documentation.list || true
-
 # << install pre
 
 # >> install post
