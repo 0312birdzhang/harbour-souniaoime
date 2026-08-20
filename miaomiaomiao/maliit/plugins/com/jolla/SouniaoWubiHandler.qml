@@ -13,6 +13,8 @@ InputHandler {
     property bool hasMore: false
     property string lastCommitted: ""
 
+    onPreeditChanged: MInputMethodQuick.sendPreedit(preedit)
+
     WubiRecognition {
         id: wubiRecognition
         version: wubiConfig.wubiVersion
@@ -42,7 +44,7 @@ InputHandler {
             width: parent ? parent.width : 0
 
             TopItem {
-                visible: false
+                visible: preedit !== ""
                 width: parent.width
 
                 Rectangle {
