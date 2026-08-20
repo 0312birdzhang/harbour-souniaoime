@@ -8,7 +8,7 @@ Name:       harbour-souniaoime
 %define __requires_exclude ^lib(xyz.birdzhang.ime|xyz.birdzhang.wubi|xyz.birdzhang.stroke).*$
 %global __provides_exclude_from %{_libdir}/qt5/qml/.*
 
-Version:    0.4.3
+Version:    0.4.4
 Release:    1
 Summary:    Souniaoime for Sailfish OS
 License:    LGPLv2
