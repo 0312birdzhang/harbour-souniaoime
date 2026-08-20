@@ -161,7 +161,7 @@ InputHandler {
             }
         } else if (pressedKey.key === Qt.Key_Return) {
             if (preedit !== "") {
-                clearPreedit()
+                commit(preedit)
                 handled = true
             }
         } else if (pressedKey.key === Qt.Key_Backspace && preedit !== "") {
@@ -202,6 +202,12 @@ InputHandler {
         preedit = ""
         wubiRecognition.clear()
         MInputMethodQuick.sendPreedit("")
+    }
+
+    function commit(text) {
+        lastCommitted = text
+        MInputMethodQuick.sendCommit(text)
+        clearPreedit()
     }
 
     function reset() {
