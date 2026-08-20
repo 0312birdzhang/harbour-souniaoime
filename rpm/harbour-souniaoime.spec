@@ -10,7 +10,7 @@ Name:       harbour-souniaoime
 
 Version:    0.4.3
 Release:    1
-Summary:    PinyinIme for Sailfish OS
+Summary:    Souniaoime for Sailfish OS
 License:    LGPLv2
 Group:      Qt/Qt
 Source:     %{name}-%{version}.tar.gz
@@ -26,7 +26,7 @@ BuildRequires:  cmake >= 3.27.1
 BuildRequires:  python3-base >= 3.8.18
 
 %description
-Allows you to use google pinyin and stroke to enter Simple Chinese character on Sailfish OS.
+Allows you to use google pinyin and stroke to enter Simplified Chinese character on Sailfish OS.
 
 
 %prep
@@ -49,6 +49,7 @@ cd %{buildroot}/usr/share/maliit/plugins/com/jolla/handlers \
   && cp ../SouniaoPinyinHandler.qml SouniaoPinyinHandler.qml \
   && cp ../SouniaoStrokeHandler.qml SouniaoStrokeHandler.qml \
   && cp ../SouniaoWubiHandler.qml SouniaoWubiHandler.qml
+rm %{buildroot}/usr/share/maliit/plugins/com/jolla/handlers/documentation.list || true
 
 # << install pre
 
