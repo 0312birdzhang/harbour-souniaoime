@@ -69,9 +69,6 @@ rm -rf %{buildroot}
 %{_datadir}/maliit/plugins/com/jolla/SouniaoPinyinHandler.qml
 %{_datadir}/maliit/plugins/com/jolla/SouniaoStrokeHandler.qml
 %{_datadir}/maliit/plugins/com/jolla/SouniaoWubiHandler.qml
-%{_datadir}/maliit/plugins/com/jolla/handlers/SouniaoPinyinHandler.qml
-%{_datadir}/maliit/plugins/com/jolla/handlers/SouniaoStrokeHandler.qml
-%{_datadir}/maliit/plugins/com/jolla/handlers/SouniaoWubiHandler.qml
 %{_datadir}/maliit/plugins/com/jolla/layouts/layouts_souniaoime.conf
 %{_datadir}/maliit/plugins/com/jolla/layouts/zh_cn_souniaoime.qml
 %{_datadir}/maliit/plugins/com/jolla/layouts/zh_cn_souniaostroke.qml

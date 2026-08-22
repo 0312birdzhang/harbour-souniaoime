@@ -1,1 +1,0 @@
-../SouniaoWubiHandler.qml
