@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/">
+    <qresource prefix="/stroke">
         <file>data/dict.txt</file>
     </qresource>
 </RCC>

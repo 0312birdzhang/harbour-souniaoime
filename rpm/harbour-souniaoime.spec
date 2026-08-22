@@ -51,12 +51,23 @@ rm -rf %{buildroot}
 
 %post
 # >> post
+mkdir -p /usr/share/maliit/plugins/com/jolla/handlers
+cd /usr/share/maliit/plugins/com/jolla/handlers \
+  && ln -sf ../SouniaoPinyinHandler.qml SouniaoPinyinHandler.qml \
+  && ln -sf ../SouniaoStrokeHandler.qml SouniaoStrokeHandler.qml \
+  && ln -sf ../SouniaoWubiHandler.qml SouniaoWubiHandler.qml
 systemctl-user restart maliit-server || true
 
 # << post
 
 %postun
 # >> postun
+if [ -d /usr/share/maliit/plugins/com/jolla/handlers ]; then
+  cd /usr/share/maliit/plugins/com/jolla/handlers \
+  && rm -rf SouniaoPinyinHandler.qml \
+  && rm -rf SouniaoStrokeHandler.qml \
+  && rm -rf SouniaoWubiHandler.qml
+fi
 systemctl-user restart maliit-server || true
 # << postun
 

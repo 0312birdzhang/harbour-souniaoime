@@ -21,7 +21,7 @@ RESOURCES += src/stroke.qrc
 
 DISTFILES += qmldir
 
-data.files += data/dict.txt
+data.files += src/data/dict.txt
 data.path = /usr/share/harbour-souniaoime/data
 
 qmldir.files = qmldir

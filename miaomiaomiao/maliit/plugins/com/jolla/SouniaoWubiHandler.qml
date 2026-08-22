@@ -3,6 +3,7 @@ import Sailfish.Silica 1.0
 import Nemo.Configuration 1.0
 import com.jolla.keyboard 1.0
 import xyz.birdzhang.wubi 1.0
+import xyz.birdzhang.ime 1.0
 
 InputHandler {
     id: handler
@@ -12,12 +13,19 @@ InputHandler {
     property bool composingEnabled: !keyboard.inSymView
     property bool hasMore: false
     property string lastCommitted: ""
+    property bool predictionMode: false
+    property var predictionCandidates: []
 
     onPreeditChanged: MInputMethodQuick.sendPreedit(preedit)
 
     WubiRecognition {
         id: wubiRecognition
         version: wubiConfig.wubiVersion
+    }
+
+    QmlPinyin {
+        id: gpy
+        Component.onCompleted: gpy.init()
     }
 
     ConfigurationGroup {
@@ -49,7 +57,7 @@ InputHandler {
 
                 SilicaListView {
                     id: listView
-                    model: wubiRecognition.candidates
+                    model: predictionMode ? predictionCandidates : wubiRecognition.candidates
                     orientation: ListView.Horizontal
                     width: parent.width
                     height: parent.height
@@ -97,7 +105,7 @@ InputHandler {
 
             SilicaListView {
                 id: verticalList
-                model: wubiRecognition.candidates
+                model: predictionMode ? predictionCandidates : wubiRecognition.candidates
                 anchors.fill: parent
                 clip: true
                 boundsBehavior: Flickable.StopAtBounds
@@ -158,6 +166,9 @@ InputHandler {
             if (preedit !== "" && wubiRecognition.candidates.length > 0) {
                 accept(0)
                 handled = true
+            } else if (predictionMode && predictionCandidates.length > 0) {
+                accept(0)
+                handled = true
             }
         } else if (pressedKey.key === Qt.Key_Return) {
             if (preedit !== "") {
@@ -170,6 +181,8 @@ InputHandler {
             handled = true
         } else if (pressedKey.text.length !== 0) {
             if (!keyboard.inSymView && regLetter.test(pressedKey.text)) {
+                predictionMode = false
+                predictionCandidates = []
                 wubiRecognition.input(pressedKey.text)
                 preedit = wubiRecognition.currentInput
                 handled = true
@@ -188,13 +201,17 @@ InputHandler {
     }
 
     function accept(index) {
+        if (predictionMode) {
+            if (index >= 0 && index < predictionCandidates.length) {
+                commitPrediction(predictionCandidates[index])
+            }
+            return
+        }
         if (index < 0 || index >= wubiRecognition.candidates.length)
             return
         var text = wubiRecognition.pick(index)
         if (text && text.length > 0) {
-            lastCommitted = text
-            MInputMethodQuick.sendCommit(text)
-            preedit = wubiRecognition.currentInput
+            commitText(text)
         }
     }
 
@@ -210,8 +227,44 @@ InputHandler {
         clearPreedit()
     }
 
+    function commitText(text) {
+        clearPreedit()
+        lastCommitted = text
+        MInputMethodQuick.sendCommit(text)
+        updatePredictions(text)
+    }
+
+    function commitPrediction(text) {
+        clearPreedit()
+        lastCommitted = text
+        MInputMethodQuick.sendCommit(text)
+        updatePredictions(text)
+    }
+
+    function updatePredictions(history) {
+        predictionCandidates = []
+        if (!history || history.length === 0) {
+            predictionMode = false
+            return
+        }
+        var result = []
+        var list = gpy.predictionList(history, 20)
+        for (var i = 0; i < list.length; i++) {
+            if (list[i] && list[i].length > 0)
+                result.push(list[i])
+        }
+        predictionCandidates = result
+        predictionMode = predictionCandidates.length > 0
+    }
+
+    function clearPredictions() {
+        predictionCandidates = []
+        predictionMode = false
+    }
+
     function reset() {
         clearPreedit()
+        clearPredictions()
         lastCommitted = ""
         if (keyboard.shiftState !== ShiftState.LockedShift) {
             keyboard.shiftState = ShiftState.NoShift

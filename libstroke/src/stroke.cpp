@@ -34,7 +34,7 @@ QString StrokeRecognition::pick(int index)
 
 void StrokeRecognition::loadDictionary()
 {
-    QFile f(":/data/dict.txt");
+    QFile f(":/stroke/data/dict.txt");
     if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qWarning() << "StrokeRecognition: cannot open dictionary resource";
         return;

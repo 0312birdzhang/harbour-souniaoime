@@ -4,9 +4,10 @@ import ".."
 KeyboardLayout {
     type: "china_stroke"
     inputMode: "stroke"
+    property bool pinyinMode: true
     
     KeyboardRow {
-        visible: attributes.inSymView
+        visible: keyboard.inSymView
 
         CharacterKey { symView: "1"; symView2: "@" }
         CharacterKey { symView: "2"; symView2: "/" }
@@ -21,7 +22,7 @@ KeyboardLayout {
     }
 
     KeyboardRow {
-        visible: attributes.inSymView
+        visible: keyboard.inSymView
 
         CharacterKey { symView: "*"; symView2: "§" }
         CharacterKey { symView: "#"; symView2: "=" }
@@ -37,7 +38,7 @@ KeyboardLayout {
 
     KeyboardRow {
         id: centerRow
-        visible: attributes.inSymView
+        visible: keyboard.inSymView
 
         ShiftKey {}
 
@@ -58,7 +59,7 @@ KeyboardLayout {
         property int strokeKeyWidth: (parent.width - backspace.width) / 6
 
         height: keyHeight
-        visible: !attributes.inSymView
+        visible: !keyboard.inSymView
         anchors.horizontalCenter: parent.horizontalCenter
 
         CharacterKey {
@@ -106,7 +107,7 @@ KeyboardLayout {
 
     KeyboardRow {
         SymbolKey {
-            caption: attributes.inSymView ? "笔画" : "符号" // stroke/symbols
+            caption: keyboard.inSymView ? "笔画" : "符号" // stroke/symbols
         }
 
         ChineseContextAwareCommaKey {}
