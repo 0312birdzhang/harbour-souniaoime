@@ -549,6 +549,9 @@ InputHandler {
 
 
                 handled = true
+            } else {
+                MInputMethodQuick.sendCommit(" ")
+                handled = true
             }
         } else if (pressedKey.key === Qt.Key_Return) {
             if (preedit !== "") {

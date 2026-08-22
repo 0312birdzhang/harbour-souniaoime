@@ -9,7 +9,7 @@ Name:       harbour-souniaoime
 %global __provides_exclude_from %{_libdir}/qt5/qml/.*
 
 Version:    0.4.5
-Release:    1
+Release:    2
 Summary:    Souniaoime for Sailfish OS
 License:    LGPLv2
 Group:      Qt/Qt
@@ -44,6 +44,16 @@ Allows you to use google pinyin and stroke to enter Simplified Chinese character
 rm -rf %{buildroot}
 %qmake5_install
 
+# 创建 handlers/ 软链作为包文件，兼容 5.2（从 handlers/ 读取）和低版本（从 com/jolla/ 读取）
+mkdir -p %{buildroot}%{_datadir}/maliit/plugins/com/jolla/handlers
+cd %{buildroot}%{_datadir}/maliit/plugins/com/jolla/handlers \
+  && ln -s ../SouniaoPinyinHandler.qml SouniaoPinyinHandler.qml \
+  && ln -s ../SouniaoStrokeHandler.qml SouniaoStrokeHandler.qml \
+  && ln -s ../SouniaoWubiHandler.qml SouniaoWubiHandler.qml
+
+# 移除 find-docs 生成的空文档占位文件
+find %{buildroot} -name documentation.list -delete
+
 # << install pre
 
 # >> install post
@@ -62,12 +72,6 @@ systemctl-user restart maliit-server || true
 
 %postun
 # >> postun
-if [ -d /usr/share/maliit/plugins/com/jolla/handlers ]; then
-  cd /usr/share/maliit/plugins/com/jolla/handlers \
-  && rm -rf SouniaoPinyinHandler.qml \
-  && rm -rf SouniaoStrokeHandler.qml \
-  && rm -rf SouniaoWubiHandler.qml
-fi
 systemctl-user restart maliit-server || true
 # << postun
 
@@ -80,6 +84,10 @@ rm -rf %{buildroot}
 %{_datadir}/maliit/plugins/com/jolla/SouniaoPinyinHandler.qml
 %{_datadir}/maliit/plugins/com/jolla/SouniaoStrokeHandler.qml
 %{_datadir}/maliit/plugins/com/jolla/SouniaoWubiHandler.qml
+%{_datadir}/maliit/plugins/com/jolla/handlers/SouniaoPinyinHandler.qml
+%{_datadir}/maliit/plugins/com/jolla/handlers/SouniaoStrokeHandler.qml
+%{_datadir}/maliit/plugins/com/jolla/handlers/SouniaoWubiHandler.qml
+%exclude %{_datadir}/maliit/plugins/com/jolla/handlers/documentation.list
 %{_datadir}/maliit/plugins/com/jolla/layouts/layouts_souniaoime.conf
 %{_datadir}/maliit/plugins/com/jolla/layouts/zh_cn_souniaoime.qml
 %{_datadir}/maliit/plugins/com/jolla/layouts/zh_cn_souniaostroke.qml

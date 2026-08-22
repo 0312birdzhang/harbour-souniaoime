@@ -166,8 +166,8 @@ InputHandler {
             if (preedit !== "" && wubiRecognition.candidates.length > 0) {
                 accept(0)
                 handled = true
-            } else if (predictionMode && predictionCandidates.length > 0) {
-                accept(0)
+            } else {
+                MInputMethodQuick.sendCommit(" ")
                 handled = true
             }
         } else if (pressedKey.key === Qt.Key_Return) {
