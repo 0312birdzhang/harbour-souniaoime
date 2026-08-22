@@ -9,7 +9,7 @@ Name:       harbour-souniaoime
 %global __provides_exclude_from %{_libdir}/qt5/qml/.*
 
 Version:    0.4.4
-Release:    1
+Release:    2
 Summary:    Souniaoime for Sailfish OS
 License:    LGPLv2
 Group:      Qt/Qt
