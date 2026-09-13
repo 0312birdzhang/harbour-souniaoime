@@ -6,7 +6,10 @@ CONFIG += sailfishapp
 
 SOURCES += src/harbour-souniaoime.cpp
 
-OTHER_FILES += qml/harbour-souniaoime.qml
+OTHER_FILES += qml/harbour-souniaoime.qml \
+    qml/pages/FirstPage.qml \
+    qml/pages/AboutPage.qml \
+    qml/pages/UserDictionaryPage.qml
 
 
 target.path = /usr/bin

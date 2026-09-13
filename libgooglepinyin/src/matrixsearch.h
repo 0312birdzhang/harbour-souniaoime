@@ -384,6 +384,20 @@ class MatrixSearch {
 
   bool is_user_dictionary_enabled() const;
 
+  bool add_user_lemma(const char16 *lemma, uint16 lemma_len,
+                      const char *spelling, uint16 spelling_len);
+
+  size_t user_dictionary_lemma_count();
+
+  bool get_user_dictionary_lemma(size_t index, char16 *lemma,
+                                 uint16 lemma_max, char *spelling,
+                                 size_t spelling_max);
+
+  bool remove_user_lemma(const char16 *lemma, uint16 lemma_len,
+                         const char *spelling, uint16 spelling_len);
+
+  bool reset_user_dictionary(const char *fn_usr_dict);
+
   void set_max_lens(size_t max_sps_len, size_t max_hzs_len);
 
   void close();

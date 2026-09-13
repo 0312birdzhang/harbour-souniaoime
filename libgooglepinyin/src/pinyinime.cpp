@@ -192,6 +192,35 @@ extern "C" {
       return NULL != matrix_search ? matrix_search->is_user_dictionary_enabled() : false;
   }
 
+  bool im_add_user_lemma(const char16 *lemma, uint16 lemma_len,
+                         const char *spelling, uint16 spelling_len) {
+      return NULL != matrix_search && matrix_search->add_user_lemma(
+          lemma, lemma_len, spelling, spelling_len);
+  }
+
+  size_t im_get_user_dictionary_lemma_count(void) {
+      return NULL != matrix_search ?
+          matrix_search->user_dictionary_lemma_count() : 0;
+  }
+
+  bool im_get_user_dictionary_lemma(size_t index, char16 *lemma,
+                                    uint16 lemma_max, char *spelling,
+                                    size_t spelling_max) {
+      return NULL != matrix_search && matrix_search->get_user_dictionary_lemma(
+          index, lemma, lemma_max, spelling, spelling_max);
+  }
+
+  bool im_remove_user_lemma(const char16 *lemma, uint16 lemma_len,
+                            const char *spelling, uint16 spelling_len) {
+      return NULL != matrix_search && matrix_search->remove_user_lemma(
+          lemma, lemma_len, spelling, spelling_len);
+  }
+
+  bool im_reset_user_dictionary(const char *fn_usr_dict) {
+      return NULL != matrix_search &&
+          matrix_search->reset_user_dictionary(fn_usr_dict);
+  }
+
 #ifdef __cplusplus
 }
 #endif

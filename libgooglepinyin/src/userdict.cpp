@@ -222,7 +222,8 @@ inline bool UserDict::is_valid_state() {
 }
 
 UserDict::UserDict()
-    : start_id_(0),
+    : total_other_nfreq_(0),
+      start_id_(0),
       version_(0),
       lemmas_(NULL),
       offsets_(NULL),
@@ -339,6 +340,51 @@ bool UserDict::close_dict() {
 
 size_t UserDict::number_of_lemmas() {
   return dict_info_.lemma_count;
+}
+
+LemmaIdType UserDict::get_lemma_id_at(size_t index) {
+  if (!is_valid_state() || index >= dict_info_.lemma_count)
+    return 0;
+  uint32 offset = offsets_[index];
+  const bool removed = (offset & kUserDictOffsetFlagRemove) != 0;
+  offset &= kUserDictOffsetMask;
+  if (offset >= dict_info_.lemma_size || removed ||
+      (get_lemma_flag(offset) & kUserDictLemmaFlagRemove))
+    return 0;
+  return ids_[index];
+}
+
+bool UserDict::get_lemma_at(size_t index, char16 *lemma, uint16 lemma_max,
+                            uint16 *splids, uint16 splids_max) {
+  if (!is_valid_state() || index >= dict_info_.lemma_count ||
+      lemma == NULL || splids == NULL || lemma_max == 0)
+    return false;
+  uint32 offset = offsets_[index];
+  const bool removed = (offset & kUserDictOffsetFlagRemove) != 0;
+  offset &= kUserDictOffsetMask;
+  // A user dictionary lives in a writable file and can be left partially
+  // written after an interrupted update.  The search code historically
+  // trusted every stored offset; the management page enumerates all records,
+  // so one damaged record would otherwise read beyond lemmas_ and crash the
+  // whole settings application.
+  if (offset > dict_info_.lemma_size || dict_info_.lemma_size - offset < 2)
+    return false;
+  if (removed || (get_lemma_flag(offset) & kUserDictLemmaFlagRemove))
+    return false;
+  uint8 nchar = get_lemma_nchar(offset);
+  const size_t record_size = 2 + (static_cast<size_t>(nchar) << 2);
+  if (nchar == 0 || nchar > kMaxLemmaSize ||
+      nchar + 1 > lemma_max || nchar > splids_max ||
+      record_size > dict_info_.lemma_size - offset)
+    return false;
+  const uint16 *stored_splids = get_lemma_spell_ids(offset);
+  const char16 *stored_word = get_lemma_word(offset);
+  for (uint8 i = 0; i < nchar; ++i) {
+    lemma[i] = stored_word[i];
+    splids[i] = stored_splids[i];
+  }
+  lemma[nchar] = 0;
+  return true;
 }
 
 void UserDict::reset_milestones(uint16 from_step, MileStoneHandle from_handle) {
@@ -1190,6 +1236,34 @@ bool UserDict::load(const char *file, LemmaIdType start_id) {
   }
   if (readed < toread)
     goto error;
+#endif
+
+  // The old validator only checked the aggregate file size.  Reject files
+  // whose internal indexes point outside the lemma block before search,
+  // insertion, or prediction code can dereference them.
+  for (i = 0; i < dict_info.lemma_count; ++i) {
+    uint32 offset = offsets[i] & kUserDictOffsetMask;
+    if (offset > dict_info.lemma_size || dict_info.lemma_size - offset < 2)
+      goto error;
+    uint8 nchar = lemmas[offset + 1];
+    if (nchar == 0 || nchar > kMaxLemmaSize ||
+        2 + (static_cast<size_t>(nchar) << 2) >
+            dict_info.lemma_size - offset)
+      goto error;
+#ifdef ___PREDICT_ENABLED___
+    uint32 predict_offset = predicts[i] & kUserDictOffsetMask;
+    if (predict_offset > dict_info.lemma_size ||
+        dict_info.lemma_size - predict_offset < 2)
+      goto error;
+#endif
+  }
+#ifdef ___SYNC_ENABLED___
+  for (i = 0; i < dict_info.sync_count; ++i) {
+    uint32 sync_offset = syncs[i] & kUserDictOffsetMask;
+    if (sync_offset > dict_info.lemma_size ||
+        dict_info.lemma_size - sync_offset < 2)
+      goto error;
+  }
 #endif
 
   for (i = 0; i < dict_info.lemma_count; i++) {

@@ -34,8 +34,11 @@
 #include "dictdef.h"
 #include "userdict.h"
 #include <QStandardPaths>
+#include <QFile>
 #include <QFileInfo>
 #include <QDir>
+#include <QDateTime>
+#include <QRegExp>
 #include <QtCore/QLibraryInfo>
 #include <QSysInfo>
 
@@ -44,6 +47,12 @@ using namespace ime_pinyin;
 
 QScopedPointer<PinyinDecoderService> PinyinDecoderService::_instance;
 
+static QString userDictionaryFilePath()
+{
+    return QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
+            + QLatin1String("/harbour-souniaoime/pinyin/usr_dict.dat");
+}
+
 /*!
     \class QtVirtualKeyboard::PinyinDecoderService
     \internal
@@ -51,7 +60,9 @@ QScopedPointer<PinyinDecoderService> PinyinDecoderService::_instance;
 
 PinyinDecoderService::PinyinDecoderService(QObject *parent) :
     QObject(parent),
-    initDone(false)
+    initDone(false),
+    userDictionaryMTime(-1),
+    userDictionarySize(-1)
 {
 }
 
@@ -87,51 +98,23 @@ bool PinyinDecoderService::init()
         }
 
     }
-    QString usrDictPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
-    QFileInfo usrDictInfo(usrDictPath + QLatin1String("/pinyin/usr_dict.dat"));
+    QFileInfo usrDictInfo(userDictionaryFilePath());
     
     // 确保目录存在
     QDir().mkpath(usrDictInfo.absolutePath());
-    
-    // 确保文件存在且不为空
-    if (!usrDictInfo.exists() || usrDictInfo.size() == 0) {
-        QFile file(usrDictInfo.absoluteFilePath());
-        if (file.open(QIODevice::WriteOnly)) {
-            // 写入词典版本号 (使用与 UserDict 中相同的版本号)
-            uint32 version = 0x0ABCDEF0;
-            file.write((const char*)&version, sizeof(version));
-            
-            // 写入空的词典信息 (根据 UserDictInfo 结构体)
-            // 对应 UserDict::reset 方法的实现
-            char info[40] = {0}; // 足够容纳 UserDictInfo 结构体
-            file.write(info, 40);
-            file.close();
-        }
-    }
 
-    // 尝试初始化解码器
+    // Keep existing learned phrases when upgrading from the old location.
+    QString legacyPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
+            + QLatin1String("/pinyin/usr_dict.dat");
+    if (!usrDictInfo.exists() && QFileInfo(legacyPath).exists())
+        QFile::copy(legacyPath, usrDictInfo.absoluteFilePath());
+    
+    // UserDict::load_dict() validates and creates the binary file itself.
+    // Do not duplicate its ABI-dependent on-disk structure here.
     initDone = im_open_decoder(sysDict.toUtf8().constData(), usrDictInfo.absoluteFilePath().toUtf8().constData());
-    
-    // 如果初始化失败，检查文件大小
-    if (!initDone) {
-        QFileInfo checkInfo(usrDictInfo.absoluteFilePath());
-        if (checkInfo.size() == 0) {
-            // 文件仍然为空，再次尝试创建
-            QFile file(usrDictInfo.absoluteFilePath());
-            if (file.open(QIODevice::WriteOnly)) {
-                // 写入词典版本号
-                uint32 version = 0x0ABCDEF0;
-                file.write((const char*)&version, sizeof(version));
-                // 写入空的词典信息
-                char info[40] = {0};
-                file.write(info, 40);
-                file.close();
-                // 再次尝试初始化
-                initDone = im_open_decoder(sysDict.toUtf8().constData(), usrDictInfo.absoluteFilePath().toUtf8().constData());
-            }
-        }
-    }
-    
+    usrDictInfo.refresh();
+    userDictionaryMTime = usrDictInfo.lastModified().toMSecsSinceEpoch();
+    userDictionarySize = usrDictInfo.size();
     return initDone;
 }
 
@@ -140,8 +123,7 @@ void PinyinDecoderService::setUserDictionary(bool enabled)
     if (enabled == im_is_user_dictionary_enabled())
         return;
     if (enabled) {
-        QString usrDictPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
-        QFileInfo usrDictInfo(usrDictPath + QLatin1String("/pinyin/usr_dict.dat"));
+        QFileInfo usrDictInfo(userDictionaryFilePath());
         im_init_user_dictionary(usrDictInfo.absoluteFilePath().toUtf8().constData());
     } else {
         im_init_user_dictionary(NULL);
@@ -164,6 +146,7 @@ void PinyinDecoderService::setLimits(int maxSpsLen, int maxHzsLen)
 
 int PinyinDecoderService::search(const QString &spelling)
 {
+    reloadUserDictionaryIfChanged();
     QByteArray spellingBuf = spelling.toLatin1();
     return int(im_search(spellingBuf.constData(), spellingBuf.length()));
 }
@@ -269,6 +252,7 @@ void PinyinDecoderService::flushCache()
 
 QList<QString> PinyinDecoderService::predictionList(const QString &history, int fetchSize)
 {
+    reloadUserDictionaryIfChanged();
     QList<QString> predictList;
     char16 (*predictItems)[kMaxPredictSize + 1] = 0;
     int predictNum = int(im_get_predicts(history.utf16(), predictItems));
@@ -277,5 +261,163 @@ QList<QString> PinyinDecoderService::predictionList(const QString &history, int 
     for (int i = 0; i < fetchSize; i++)
         predictList.append(QString((QChar *)predictItems[i]));
     return predictList;
+}
+
+QString PinyinDecoderService::addUserPhrase(const QString &phrase, const QString &pinyin)
+{
+    if (!init())
+        return QString::fromUtf8("词典初始化失败");
+
+    QString word = phrase.trimmed();
+    QString spelling = pinyin.trimmed().toLower();
+    spelling.replace(QRegExp(QLatin1String("\\s+")), QLatin1String("'"));
+    spelling.replace(QRegExp(QLatin1String("'+")), QLatin1String("'"));
+    if (word.length() < 2 || word.length() > kMaxLemmaSize)
+        return QString::fromUtf8("词组长度需为 2—8 个汉字");
+    if (spelling.isEmpty())
+        return QString::fromUtf8("请输入完整拼音");
+    for (int i = 0; i < word.length(); ++i) {
+        if (word.at(i).unicode() < 0x3400 || word.at(i).unicode() > 0x9fff)
+            return QString::fromUtf8("词组只能包含汉字");
+    }
+    QByteArray spellingBytes = spelling.toLatin1();
+    if (!im_add_user_lemma(reinterpret_cast<const char16 *>(word.utf16()),
+                           uint16(word.length()), spellingBytes.constData(),
+                           uint16(spellingBytes.length())))
+        return QString::fromUtf8("添加失败：拼音音节数必须与汉字数相同");
+    QFileInfo dictInfo(userDictionaryFilePath());
+    userDictionaryMTime = dictInfo.lastModified().toMSecsSinceEpoch();
+    userDictionarySize = dictInfo.size();
+    return QString();
+}
+
+int PinyinDecoderService::userDictionaryEntryCount() const
+{
+    return int(im_get_user_dictionary_lemma_count());
+}
+
+QVariantList PinyinDecoderService::userDictionaryEntries() const
+{
+    QVariantList entries;
+    const size_t count = im_get_user_dictionary_lemma_count();
+    for (size_t i = 0; i < count; ++i) {
+        char16 phrase[kMaxLemmaSize + 1] = { 0 };
+        char spelling[64] = { 0 };
+        if (!im_get_user_dictionary_lemma(i, phrase, kMaxLemmaSize + 1,
+                                          spelling, sizeof(spelling)))
+            continue;
+        QVariantMap entry;
+        entry.insert(QLatin1String("phrase"), QString(reinterpret_cast<QChar *>(phrase)));
+        entry.insert(QLatin1String("pinyin"), QString::fromLatin1(spelling).toLower());
+        entries.append(entry);
+    }
+    return entries;
+}
+
+QList<QString> PinyinDecoderService::userDictionaryEntryList() const
+{
+    QList<QString> result;
+    QVariantList entries = userDictionaryEntries();
+    for (int i = 0; i < entries.length(); ++i) {
+        QVariantMap entry = entries.at(i).toMap();
+        result.append(entry.value(QLatin1String("phrase")).toString()
+                      + QLatin1Char('\t')
+                      + entry.value(QLatin1String("pinyin")).toString());
+    }
+    return result;
+}
+
+QList<QString> PinyinDecoderService::userDictionaryEntryPage(int offset, int limit) const
+{
+    QList<QString> result;
+    const int total = int(im_get_user_dictionary_lemma_count());
+    int rawIndex = qMax(0, offset);
+    const int pageSize = qBound(1, limit, 500);
+    QList<QString> rows;
+    while (rawIndex < total && rows.length() < pageSize) {
+        char16 phrase[kMaxLemmaSize + 1] = { 0 };
+        char spelling[64] = { 0 };
+        if (im_get_user_dictionary_lemma(size_t(rawIndex), phrase,
+                                         kMaxLemmaSize + 1, spelling,
+                                         sizeof(spelling))) {
+            rows.append(QString(reinterpret_cast<QChar *>(phrase))
+                        + QLatin1Char('\t')
+                        + QString::fromLatin1(spelling).toLower());
+        }
+        ++rawIndex;
+    }
+    // The first row is paging metadata and is never displayed.
+    result.append(QLatin1String("@next:") + QString::number(rawIndex)
+                  + QLatin1Char(':') + QString::number(total));
+    result.append(rows);
+    return result;
+}
+
+QString PinyinDecoderService::removeUserPhrase(const QString &phrase, const QString &pinyin)
+{
+    QString spelling = pinyin.trimmed().toLower();
+    spelling.replace(QRegExp(QLatin1String("\\s+")), QLatin1String("'"));
+    QByteArray bytes = spelling.toLatin1();
+    if (!im_remove_user_lemma(reinterpret_cast<const char16 *>(phrase.utf16()),
+                              uint16(phrase.length()), bytes.constData(),
+                              uint16(bytes.length())))
+        return QString::fromUtf8("删除失败，词条可能已不存在");
+    QFileInfo dictInfo(userDictionaryFilePath());
+    userDictionaryMTime = dictInfo.lastModified().toMSecsSinceEpoch();
+    userDictionarySize = dictInfo.size();
+    return QString();
+}
+
+QString PinyinDecoderService::updateUserPhrase(const QString &oldPhrase,
+                                                const QString &oldPinyin,
+                                                const QString &newPhrase,
+                                                const QString &newPinyin)
+{
+    if (oldPhrase == newPhrase.trimmed() &&
+            oldPinyin.simplified() == newPinyin.trimmed().simplified())
+        return QString();
+    QString error = addUserPhrase(newPhrase, newPinyin);
+    if (!error.isEmpty())
+        return error;
+    error = removeUserPhrase(oldPhrase, oldPinyin);
+    if (!error.isEmpty())
+        return QString::fromUtf8("新词条已保存，但旧词条删除失败");
+    return QString();
+}
+
+QString PinyinDecoderService::userDictionaryPath() const
+{
+    return userDictionaryFilePath();
+}
+
+bool PinyinDecoderService::resetUserDictionary()
+{
+    if (!init())
+        return false;
+    QByteArray path = userDictionaryPath().toUtf8();
+    bool ok = im_reset_user_dictionary(path.constData());
+    if (ok) {
+        QFileInfo dictInfo(userDictionaryFilePath());
+        userDictionaryMTime = dictInfo.lastModified().toMSecsSinceEpoch();
+        userDictionarySize = dictInfo.size();
+    }
+    return ok;
+}
+
+bool PinyinDecoderService::reloadUserDictionaryIfChanged()
+{
+    if (!init())
+        return false;
+    QFileInfo dictInfo(userDictionaryFilePath());
+    const qint64 mtime = dictInfo.lastModified().toMSecsSinceEpoch();
+    const qint64 size = dictInfo.size();
+    if (mtime == userDictionaryMTime && size == userDictionarySize)
+        return false;
+
+    QByteArray path = dictInfo.absoluteFilePath().toUtf8();
+    im_init_user_dictionary(path.constData());
+    userDictionaryMTime = mtime;
+    userDictionarySize = size;
+    return im_is_user_dictionary_enabled();
 }
 

@@ -238,6 +238,9 @@ void MatrixSearch::init_user_dictionary(const char *fn_usr_dict) {
         user_dict_ = NULL;
       }
     }
+    if (NULL != user_dict_) {
+      user_dict_->set_total_lemma_count_of_others(NGram::kSysDictTotalFreq);
+    }
   }
 
   reset_search0();
@@ -245,6 +248,116 @@ void MatrixSearch::init_user_dictionary(const char *fn_usr_dict) {
 
 bool MatrixSearch::is_user_dictionary_enabled() const {
   return NULL != user_dict_;
+}
+
+bool MatrixSearch::add_user_lemma(const char16 *lemma, uint16 lemma_len,
+                                  const char *spelling,
+                                  uint16 spelling_len) {
+  if (!inited_ || NULL == user_dict_ || NULL == lemma || NULL == spelling ||
+      lemma_len < 2 || lemma_len > kMaxLemmaSize || spelling_len == 0) {
+    return false;
+  }
+
+  uint16 spl_ids[kMaxLemmaSize];
+  uint16 start_pos[kMaxLemmaSize + 1];
+  bool last_is_pre = false;
+  uint16 spl_count = spl_parser_->splstr_to_idxs_f(
+      spelling, spelling_len, spl_ids, start_pos, kMaxLemmaSize, last_is_pre);
+  if (spl_count != lemma_len || start_pos[spl_count] != spelling_len) {
+    return false;
+  }
+
+  LemmaIdType id = user_dict_->put_lemma(
+      const_cast<char16 *>(lemma), spl_ids, lemma_len, 1);
+  if (id == 0) {
+    return false;
+  }
+  update_dict_freq();
+  user_dict_->flush_cache();
+  reset_search0();
+  return true;
+}
+
+size_t MatrixSearch::user_dictionary_lemma_count() {
+  return NULL == user_dict_ ? 0 : user_dict_->number_of_lemmas();
+}
+
+bool MatrixSearch::get_user_dictionary_lemma(size_t index, char16 *lemma,
+                                             uint16 lemma_max, char *spelling,
+                                             size_t spelling_max) {
+  if (NULL == user_dict_ || NULL == lemma || NULL == spelling ||
+      lemma_max == 0 || spelling_max == 0)
+    return false;
+  UserDict *dict = static_cast<UserDict *>(user_dict_);
+  uint16 spl_ids[kMaxLemmaSize];
+  if (!dict->get_lemma_at(index, lemma, lemma_max,
+                          spl_ids, kMaxLemmaSize))
+    return false;
+  uint16 spl_count = 0;
+  while (spl_count < kMaxLemmaSize && lemma[spl_count] != 0)
+    ++spl_count;
+  size_t used = 0;
+  SpellingTrie &spelling_trie = SpellingTrie::get_instance();
+  const size_t spelling_count = spelling_trie.get_spelling_num();
+  for (uint16 i = 0; i < spl_count; ++i) {
+    // User-dictionary data is persisted outside the package.  Reject an
+    // invalid spelling id before get_spelling_str() indexes spelling_buf_.
+    if (spl_ids[i] == 0 ||
+        spl_ids[i] >= kFullSplIdStart + spelling_count)
+      return false;
+    const char *syllable = spelling_trie.get_spelling_str(spl_ids[i]);
+    size_t len = strlen(syllable);
+    if (used + len + (i ? 1 : 0) + 1 > spelling_max)
+      return false;
+    if (i)
+      spelling[used++] = ' ';
+    memcpy(spelling + used, syllable, len);
+    used += len;
+  }
+  spelling[used] = '\0';
+  return true;
+}
+
+bool MatrixSearch::remove_user_lemma(const char16 *lemma, uint16 lemma_len,
+                                     const char *spelling,
+                                     uint16 spelling_len) {
+  if (!inited_ || NULL == user_dict_ || NULL == lemma || NULL == spelling)
+    return false;
+  uint16 spl_ids[kMaxLemmaSize];
+  uint16 start_pos[kMaxLemmaSize + 1];
+  bool last_is_pre = false;
+  uint16 spl_count = spl_parser_->splstr_to_idxs_f(
+      spelling, spelling_len, spl_ids, start_pos, kMaxLemmaSize, last_is_pre);
+  if (spl_count != lemma_len || start_pos[spl_count] != spelling_len)
+    return false;
+  LemmaIdType id = user_dict_->get_lemma_id(
+      const_cast<char16 *>(lemma), spl_ids, lemma_len);
+  if (id == 0 || !user_dict_->remove_lemma(id))
+    return false;
+  update_dict_freq();
+  user_dict_->flush_cache();
+  reset_search0();
+  return true;
+}
+
+bool MatrixSearch::reset_user_dictionary(const char *fn_usr_dict) {
+  if (!inited_ || NULL == fn_usr_dict) {
+    return false;
+  }
+  if (NULL != user_dict_) {
+    delete user_dict_;
+    user_dict_ = NULL;
+  }
+  UserDict *dict = new UserDict();
+  if (NULL == dict || !dict->reset(fn_usr_dict) ||
+      !dict->load_dict(fn_usr_dict, kUserDictIdStart, kUserDictIdEnd)) {
+    delete dict;
+    return false;
+  }
+  user_dict_ = dict;
+  user_dict_->set_total_lemma_count_of_others(NGram::kSysDictTotalFreq);
+  reset_search0();
+  return true;
 }
 
 void MatrixSearch::set_max_lens(size_t max_sps_len, size_t max_hzs_len) {

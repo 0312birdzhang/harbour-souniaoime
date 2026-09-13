@@ -64,12 +64,25 @@ public:
     Q_INVOKABLE int chooceCandidate(int index);
     int cancelLastChoice();
     Q_INVOKABLE int fixedLength();
-    void flushCache();
+    Q_INVOKABLE void flushCache();
     Q_INVOKABLE QList<QString> predictionList(const QString &history, int fetchSize);
+    Q_INVOKABLE QString addUserPhrase(const QString &phrase, const QString &pinyin);
+    Q_INVOKABLE int userDictionaryEntryCount() const;
+    Q_INVOKABLE QVariantList userDictionaryEntries() const;
+    Q_INVOKABLE QList<QString> userDictionaryEntryList() const;
+    Q_INVOKABLE QList<QString> userDictionaryEntryPage(int offset, int limit) const;
+    Q_INVOKABLE QString removeUserPhrase(const QString &phrase, const QString &pinyin);
+    Q_INVOKABLE QString updateUserPhrase(const QString &oldPhrase, const QString &oldPinyin,
+                                         const QString &newPhrase, const QString &newPinyin);
+    Q_INVOKABLE QString userDictionaryPath() const;
+    Q_INVOKABLE bool resetUserDictionary();
+    Q_INVOKABLE bool reloadUserDictionaryIfChanged();
 
 private:
     static QScopedPointer<PinyinDecoderService> _instance;
     bool initDone;
+    qint64 userDictionaryMTime;
+    qint64 userDictionarySize;
 };
 
 #endif // PINYINDECODERSERVICE_H

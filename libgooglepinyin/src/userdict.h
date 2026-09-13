@@ -42,6 +42,12 @@ class UserDict : public AtomDictBase {
 
   size_t number_of_lemmas();
 
+  // Returns the id at the sorted storage index, or 0 for a removed entry.
+  LemmaIdType get_lemma_id_at(size_t index);
+
+  bool get_lemma_at(size_t index, char16 *lemma, uint16 lemma_max,
+                    uint16 *splids, uint16 splids_max);
+
   void reset_milestones(uint16 from_step, MileStoneHandle from_handle);
 
   MileStoneHandle extend_dict(MileStoneHandle from_handle,

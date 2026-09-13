@@ -43,6 +43,7 @@ InputHandler {
 
     onActiveChanged: {
         if (active) {
+            gpy.reloadUserDictionaryIfChanged()
             if(pinyinMode){
                 getPredictions(false);
             }

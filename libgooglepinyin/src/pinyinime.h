@@ -213,6 +213,20 @@ void im_init_user_dictionary(const char *fn_usr_dict);
  * Returns the current status of user dictinary.
  */
 bool im_is_user_dictionary_enabled(void);
+
+bool im_add_user_lemma(const char16 *lemma, uint16 lemma_len,
+                       const char *spelling, uint16 spelling_len);
+
+size_t im_get_user_dictionary_lemma_count(void);
+
+bool im_get_user_dictionary_lemma(size_t index, char16 *lemma,
+                                  uint16 lemma_max, char *spelling,
+                                  size_t spelling_max);
+
+bool im_remove_user_lemma(const char16 *lemma, uint16 lemma_len,
+                          const char *spelling, uint16 spelling_len);
+
+bool im_reset_user_dictionary(const char *fn_usr_dict);
 }
 
 #ifdef __cplusplus
