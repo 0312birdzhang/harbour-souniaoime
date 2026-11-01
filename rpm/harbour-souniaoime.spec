@@ -92,6 +92,7 @@ rm -rf %{buildroot}
 %{_datadir}/maliit/plugins/com/jolla/layouts/zh_cn_souniaoime.qml
 %{_datadir}/maliit/plugins/com/jolla/layouts/zh_cn_souniaostroke.qml
 %{_datadir}/maliit/plugins/com/jolla/layouts/zh_cn_souniaowubi.qml
+%{_datadir}/maliit/plugins/com/jolla/layouts/zh_cn_souniaostrokec.qml
 %{_datadir}/%{name}
 %{_datadir}/icons/hicolor/86x86/apps/harbour-souniaoime.png
 %{_datadir}/applications/%{name}.desktop
