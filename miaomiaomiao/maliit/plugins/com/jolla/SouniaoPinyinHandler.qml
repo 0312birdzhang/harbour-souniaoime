@@ -621,6 +621,9 @@ InputHandler {
 
 
     function getPredictions(isDelete){
+        if(!active){
+            return;
+        }
         preedit = "";
         commit(preedit)
         gpy.candidates.clear();
